@@ -1,9 +1,6 @@
 namespace Services;
 
-using System.Data.SqlTypes;
-using System.Security;
 using Models;
-
 using MySqlConnector;
 
 public class ClienteService
@@ -17,7 +14,7 @@ public class ClienteService
 
     public void CadastrarCliente(string nome, string cpf, string email)
     {
-        using (SqlConnection connection = new SqlConnection(connectionString))
+        using (MySqlConnection connection = new MySqlConnection(_connectionString))
         {
 
             string sql = "INSERT INTO cliente (nome, cpf, email) VALUES (@nome, @cpf, @email)";
