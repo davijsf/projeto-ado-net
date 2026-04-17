@@ -1,8 +1,8 @@
 namespace Models;
 
-public class Vendedor
+public class Vendedor : Usuario
 {
-    public int Id { get ; set ; }
+    public int IdVend { get ; set ; }
     public string ? Nome { get ; set ; }
     public string ? Matricula { get ; set ; }
     public double Salario { get ; set ; }
