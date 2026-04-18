@@ -12,7 +12,7 @@ public class DataBaseConnection
         stConnection = "server=localhost;" +
                        "database=livraria_ado_net;" +
                        "uid=root;" +
-                       "pwd=1234";
+                       "pwd=Mateus84+";
     }
 
     public void ExecutarComando(string query, Dictionary<string, object>? parametros = null)

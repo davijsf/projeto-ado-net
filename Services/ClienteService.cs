@@ -12,7 +12,7 @@ public class ClienteService
                         "server=localhost;" +
                        "database=livraria_ado_net;" +
                        "uid=root;" +
-                       "pwd=1234";
+                       "pwd=Mateus84+";
 
     public void CadastrarCliente(string nome, string cpf, string email,
                                     string username, string senha, string ? avatar)

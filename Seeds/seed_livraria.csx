@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 await Main();
 
 async Task Main(){
-    var connectionString = "server=localhost;database=livraria_ado_net;uid=root;pwd=1234";
+    var connectionString = "server=localhost;database=livraria_ado_net;uid=root;pwd=Mateus84+";
 
     await using var conn = new MySqlConnection(connectionString);
     await conn.OpenAsync();
