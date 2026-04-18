@@ -2,6 +2,7 @@ namespace Services;
 
 using Models;
 using ConsoleApp;
+
 using MySqlConnector;
 
 public class ClienteService
