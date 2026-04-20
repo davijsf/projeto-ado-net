@@ -1,4 +1,4 @@
-﻿namespace Interfaces;
+﻿namespace Business.Interfaces;
 
 public class Class1
 {
