@@ -4,4 +4,5 @@
     <Project Path="Business/Services/Business.Services.csproj" />
   </Folder>
   <Project Path="ConsoleApp/ConsoleApp.csproj" />
+  <Project Path="Data/Data.csproj" />
 </Solution>
