@@ -2,8 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Entities\Entities.csproj" />
-    <ProjectReference Include="..\Business\Services\Services.csproj" />
-    <ProjectReference Include="..\Business\Interfaces\Interfaces.csproj" />
+    <ProjectReference Include="..\Business\Services\Business.Services.csproj" />
+    <ProjectReference Include="..\Business\Interfaces\Business.Interfaces.csproj" />
   </ItemGroup>
 
   <ItemGroup>
