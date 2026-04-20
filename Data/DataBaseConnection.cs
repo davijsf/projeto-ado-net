@@ -1,7 +1,7 @@
 namespace Data;
 
 using System.Data;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 public class DataBaseConnection
 {

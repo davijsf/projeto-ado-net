@@ -1,13 +1,20 @@
 ﻿// See https://aka.ms/new-console-template for more information
 namespace ConsoleApp;
 
-using System.Data;
 using Data;
+using Services;
 
 class Application {
 
     public static void Main(string[] args) {
         DataBaseConnection db = new DataBaseConnection();
+
+        ClienteService clienteService = new ClienteService();
+        UsuarioService usuarioService = new UsuarioService();
+        
+        clienteService.DeletarCliente(1);
+        // usuarioService.DeletarUsuario(2);
+
     }
 }
 

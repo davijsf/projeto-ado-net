@@ -97,11 +97,12 @@ public class ClienteService
         using (MySqlConnection connection = new MySqlConnection(_connectionString))
         {
             connection.Open();
-            string sql = "DELETE FRMO autor WHERE id = @id";
+            string sql = "DELETE FROM cliente WHERE id = @id";
 
             using (MySqlCommand cmd = new MySqlCommand(sql, connection))
             {
                 cmd.Parameters.AddWithValue("@id", id);
+                cmd.ExecuteNonQuery();
             }
         }
     }
