@@ -1,7 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
+    <PackageReference Include="MySqlConnector" Version="2.3.7" />
+    <!-- BCrypt -->
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+  </ItemGroup>
+
+   <ItemGroup>
+    <ProjectReference Include="..\Interfaces\Business.Interfaces.csproj" />
     <ProjectReference Include="..\..\Entities\Entities.csproj" />
   </ItemGroup>
 

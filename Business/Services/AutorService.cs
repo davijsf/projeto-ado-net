@@ -56,6 +56,28 @@ public class AutorService
         return autores;
     }
 
+    public Autor ? BuscarAutorPorNome(string nome)
+    {
+        using var connection = new MySqlConnection(_connectionString);
+        connection.Open();
+
+        string sql = "SELECT * FROM autor WHERE nome = @nome";
+        using var cmd = new MySqlCommand(sql, connection);
+        cmd.Parameters.AddWithValue("@nome", nome);
+
+        using var reader = cmd.ExecuteReader();
+        if (reader.Read())
+        {
+            return new Autor
+            {
+                Id = reader.GetInt32("id"),
+                Nome = reader.GetString("nome"),
+                Nacionalidade = reader.GetString("nacionalidade")
+            };
+        }
+        return null;
+    }
+
     public void AtualizarAutor(int id, string nome, string nacionalidade)
     {
         using (MySqlConnection connection = new MySqlConnection(_connectionString))

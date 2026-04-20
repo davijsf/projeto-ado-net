@@ -1,83 +1,108 @@
 namespace Services;
 
 using Entities;
-using ConsoleApp;
-
 using MySqlConnector;
 
 public class ClienteService
 {
-
     private readonly string _connectionString = 
-                        "server=localhost;" +
-                       "database=livraria_ado_net;" +
-                       "uid=root;" +
-                       "pwd=1234";
+        "server=localhost;" +
+        "database=livraria_ado_net;" +
+        "uid=root;" +
+        "pwd=1234";
 
     public void CadastrarCliente(string nome, string cpf, string email,
-                                    string username, string senha, string ? avatar)
+                                string username, string senha, string nivel, string avatar)
     {
-        using (MySqlConnection connection = new MySqlConnection(_connectionString))
+        using var connection = new MySqlConnection(_connectionString);
+        connection.Open();
+
+        // // Primeiro usuário
+        UsuarioService usuarioService = new UsuarioService();
+        int idUsuario = usuarioService.CadastrarUsuario(username, senha, nivel, avatar);
+
+
+        // Depois cliente
+        string sqlCliente = "INSERT INTO cliente (nome, cpf, email, usuario_id) VALUES (@nome, @cpf, @email, @usuario_id);";
+        using var cmdCliente = new MySqlCommand(sqlCliente, connection);
+        cmdCliente.Parameters.AddWithValue("@nome", nome);
+        cmdCliente.Parameters.AddWithValue("@cpf", cpf);
+        cmdCliente.Parameters.AddWithValue("@email", (object?)email ?? DBNull.Value);
+        cmdCliente.Parameters.AddWithValue("@usuario_id", idUsuario);
+        cmdCliente.ExecuteNonQuery();
+    }
+
+    public List<Cliente> ListarClientes()
+    {
+        var clientes = new List<Cliente>();
+
+        using var connection = new MySqlConnection(_connectionString);
+        connection.Open();
+
+        string sql = "SELECT * FROM cliente";
+        using var cmd = new MySqlCommand(sql, connection);
+        using var reader = cmd.ExecuteReader();
+
+        while (reader.Read())
         {
-            string sqlUsuario = """
-                INSERT INTO usuario (username, senha, nivel, avatar) 
-                VALUES (@username, @senha, 'comum', @avatar);
-                """;
-
-            int idUsuario;
-
-
-            using (MySqlCommand cmd= new MySqlCommand(sqlUsuario, connection))
+            clientes.Add(new Cliente
             {
-                cmd.Parameters.AddWithValue("@username", username);
-                cmd.Parameters.AddWithValue("@senha", BCrypt.Net.BCrypt.HashPassword(senha));
-                cmd.Parameters.AddWithValue("@avatar", (object?)email ?? DBNull.Value);
-                cmd.ExecuteNonQuery();
-
-                idUsuario = (int)cmd.LastInsertedId;  // ← pega o id gerado
-            }
-
-            string sqlCliente = "INSERT INTO cliente (nome, cpf, email) VALUES (@nome, @cpf, @email)";
-
-            using (MySqlCommand cmd = new MySqlCommand(sqlCliente, connection))
-            {
-                cmd.Parameters.AddWithValue("@nome", nome);
-                cmd.Parameters.AddWithValue("@cpf", cpf);
-                cmd.Parameters.AddWithValue("@email", (object?)email ?? DBNull.Value);
-                cmd.ExecuteNonQuery();
-            }
+                Id = reader.GetInt32("id"),
+                Nome = reader.GetString("nome"),
+                Cpf = reader.GetString("cpf"),
+                Email = reader.GetString("email")
+            });
         }
+
+        return clientes;
     }
 
     public Cliente? ListarClientePorId(int id)
     {
+        using var connection = new MySqlConnection(_connectionString);
+        connection.Open();
 
-        using (DatabaseConnection connection = new SqlConnection(connectionString))
+        string sql = "SELECT * FROM cliente WHERE id = @id";
+        using var cmd = new MySqlCommand(sql, connection);
+        cmd.Parameters.AddWithValue("@id", id);
+
+        using var reader = cmd.ExecuteReader();
+        if (reader.Read())
         {
-            connection.Open();
-
-            string sql = $"SELECT * FROM cliente WHERE cliente.id = @id";
-
-            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
-            using (MySqlDataReader reader = cmd.ExecuteReader())
+            return new Cliente
             {
-                while (reader.Read())
-                {
-                    clientes.Add( new Cliente
-                    {
-                        Id = reader.GetInt32("id"),
-                        Nome = reader.GetString("nome"),
-                        Cpf = reader.GetString("cpf"),
-                        Email = reader.GetString("email"),
-                    });
-                }
-            }
+                Id = reader.GetInt32("id"),
+                Nome = reader.GetString("nome"),
+                Cpf = reader.GetString("cpf"),
+                Email = reader.GetString("email")
+            };
         }
-
         return null;
     }
 
+    public void AtualizarEmailCliente(int id, string NovoEmail)
+    {
+        using var connection = new MySqlConnection(_connectionString);
+        connection.Open();
 
+        string sql = "UPDATE cliente SET email = @novoEmail";
+        using var cmd = new MySqlCommand(sql, connection);
+        cmd.Parameters.AddWithValue("@email", NovoEmail);
 
-    
+        cmd.ExecuteNonQuery();
+    }
+
+    public void DeletarCliente(int id)
+    {
+        using (MySqlConnection connection = new MySqlConnection(_connectionString))
+        {
+            connection.Open();
+            string sql = "DELETE FRMO autor WHERE id = @id";
+
+            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+            }
+        }
+    }
 }
