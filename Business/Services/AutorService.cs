@@ -1,6 +1,6 @@
 namespace Services;
 
-using Models;
+using Entities;
 using MySqlConnector;
 
 public class AutorService

@@ -1,5 +1,10 @@
 <Solution>
+  <Folder Name="/Business/">
+    <Project Path="Business/Interfaces/Interfaces.csproj" />
+    <Project Path="Business/Services/Services.csproj" />
+  </Folder>
   <Project Path="ConsoleApp/ConsoleApp.csproj" />
+  <Project Path="Interfaces/Interfaces.csproj" />
   <Project Path="Models/Models.csproj" />
   <Project Path="Services/Services.csproj" />
 </Solution>
