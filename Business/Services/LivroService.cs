@@ -60,6 +60,7 @@ public class LivroService
                             Estoque = reader.GetInt32("estoque"),
                             IdAutor = reader.GetInt32("id_autor")
                         };
+                        livros.Add(livro);
                     }
                 }
             }
@@ -67,31 +68,37 @@ public class LivroService
         return livros;
     }
 
-    public Livro ? BuscarLivroPorNome(string nome)
+    public List<Livro> BuscarLivroPorAutor(string nomeAutor)
     {
-        using var connection = new MySqlConnection(_connectionString);
-        connection.Open();
-
-        string sql = "SELECT * FROM livro WHERE nome = @nome";
-        using var cmd = new MySqlCommand(sql, connection);
-        
-        cmd.Parameters.AddWithValue("@nome", nome);
-
-        using var reader = cmd.ExecuteReader();
-
-        if (reader.Read())
+        List<Livro> livros = new List<Livro>();
+        using (MySqlConnection connection = new MySqlConnection(_connectionString))
         {
-            return new Livro
+            connection.Open();
+            string sql = "SELECT * FROM livro AS l JOIN autor AS a ON l.id_autor = a.id WHERE a.nome = @nomeAutor";
+
+            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
             {
-                Id = reader.GetInt32("id"),
-                Titulo = reader.GetString("titulo"),
-                Preco = reader.GetDouble("preco"),
-                Estoque = reader.GetInt32("estoque"),
-                IdAutor = reader.GetInt32("id_autor")
-            };
+                cmd.Parameters.AddWithValue("@nomeAutor", nomeAutor);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Livro livro = new Livro
+                        {
+                            Id = reader.GetInt32("id"),
+                            Titulo = reader.GetString("titulo"),
+                            Preco = reader.GetDouble("preco"),
+                            Estoque = reader.GetInt32("estoque"),
+                            IdAutor = reader.GetInt32("id_autor")
+                        };
+                        livros.Add(livro);
+                    }
+                }
+            }
         }
-        return null;
+        return livros;
     }
+
 
     public void AtualizarPrecoLivro(int id, double NovoPreco)
     {
