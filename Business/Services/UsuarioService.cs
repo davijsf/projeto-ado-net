@@ -1,5 +1,6 @@
 namespace Services;
 
+using System.Data;
 using Entities;
 using MySqlConnector;
 
@@ -10,6 +11,40 @@ public class UsuarioService
                        "database=livraria_ado_net;" +
                        "uid=root;" +
                        "pwd=1234";
+
+    public Usuario ? Login(string email, string senha)
+    {
+        using (MySqlConnection connection = new MySqlConnection(_connectionString))
+        {
+            connection.Open();
+            string sql = "SELECT * FROM usuario WHERE email = @email";
+
+            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
+            {
+                cmd.Parameters.AddWithValue("@email", email);
+                using var reader = cmd.ExecuteReader();
+                
+                if (reader.Read())
+                {
+                    string senhaHash = reader.GetString("senha");
+
+                    // valida a senha com BCrypt
+                    if (BCrypt.Net.BCrypt.Verify(senhaHash, senha))
+                    {
+                        return new Usuario
+                        {
+                            Id = reader.GetInt32("id"),
+                            Username = reader.GetString("username"),
+                            Senha = reader.GetString("senha"),
+                            nivel = reader.GetString("nivel"),
+                            Avatar = reader.GetString("avatar")
+                        };
+                    }
+                }
+            }
+        }
+        return null; // email encontrado ou senha incorreta
+    }
 
 
     public int CadastrarUsuario(string username, string senha, string nivel, string avatar)
@@ -57,6 +92,7 @@ public class UsuarioService
                     nivel = reader.GetString("nivel"),
                     Avatar = reader.GetString("avatar")
                 };
+                usuarios.Add(usuario);
             }
         }
         return usuarios;
