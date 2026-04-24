@@ -1,136 +1,140 @@
 namespace Services;
 
+using Data;
+using System.Data;
+using Business.Interfaces;
 using Entities;
 using MySqlConnector;
 
-public class LivroService
+public class LivroService : ILivroService
 {
-    private readonly string _connectionString =  
-                       "server=localhost;" +
-                       "database=livraria_ado_net;" +
-                       "uid=root;" +
-                       "pwd=1234";
+    private readonly DataBaseConnection _db = new DataBaseConnection();
 
-    public void CadastrarLivro(string titulo, double preco, int estoque, string nomeAutor)
+    //refatorado
+    public void CadastrarLivro(Livro livro)
     {
+        //rever essa parte, metodo BuscarAutorPorNome não esta funcionando
         AutorService autorService = new AutorService();
         var autor = autorService.BuscarAutorPorNome(nomeAutor);
-
         if (autor == null)
         {
             Console.WriteLine("Autor não encontrado.");
             return;
         }
 
-        using var connection = new MySqlConnection(_connectionString);
-        connection.Open();
+        string sql = "INSERT INTO livro (titulo, preco, estoque, id_autor)"+
+                     "VALUES (@titulo, @preco, @estoque, @id_autor)";
 
-        string sql = "INSERT INTO livro (titulo, preco, estoque, id_autor) VALUES (@titulo, @preco, @estoque, @id_autor)";
-
-        using (MySqlCommand cmd = new MySqlCommand(sql, connection))
+        var parametros = new Dictionary<string, object>
         {
-            cmd.Parameters.AddWithValue("@titulo", titulo);
-            cmd.Parameters.AddWithValue("@preco", preco);
-            cmd.Parameters.AddWithValue("@estoque", estoque);
-            cmd.Parameters.AddWithValue("@id_autor", autor.Id);
+            { "@titulo", livro.Titulo! },
+            { "@preco", livro.Preco! },
+            { "@estoque", livro.Estoque! },
+            { "@idAutor", livro.IdAutor! }
+        };
 
-            cmd.ExecuteNonQuery();
-        }
+        _db.ExecutarComando(sql, parametros);
+
     }
 
+    //refatorado
     public List<Livro> ListarLivros()
     {
-        List<Livro> livros = new List<Livro>();
-        using (MySqlConnection connection = new MySqlConnection(_connectionString))
-        {
-            connection.Open();
-            string sql = "SELECT * FROM livro";
+        string sql = "SELECT * FROM livro";
 
-            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
+            DataTable dt = _db.PreencherTabela(sql);
+
+            List<Livro> livros = new List<Livro>();
+
+            foreach (DataRow row in dt.Rows)
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                livros.Add(new Livro
                 {
-                    while (reader.Read())
-                    {
-                        Livro livro = new Livro
-                        {
-                            Id = reader.GetInt32("id"),
-                            Titulo = reader.GetString("titulo"),
-                            Preco = reader.GetDouble("preco"),
-                            Estoque = reader.GetInt32("estoque"),
-                            IdAutor = reader.GetInt32("id_autor")
-                        };
-                        livros.Add(livro);
-                    }
-                }
+                    Id    = Convert.ToInt32(row["id"]),
+                    Titulo      = row["titulo"].ToString(),
+                    Preco = Convert.ToDouble(row["preco"]),
+                    Estoque    = Convert.ToInt32(row["estoque"]),
+                    IdAutor = row["id_autor"] == DBNull.Value
+                                ? null
+                                : Convert.ToInt32(row["id_autor"])
+                });
             }
-        }
+
         return livros;
     }
 
-    public List<Livro> BuscarLivroPorAutor(string nomeAutor)
+    //refatorado
+    public List<Livro> ConsultarLivrosPorAutor(int id)
     {
-        List<Livro> livros = new List<Livro>();
-        using (MySqlConnection connection = new MySqlConnection(_connectionString))
-        {
-            connection.Open();
-            string sql = "SELECT * FROM livro AS l JOIN autor AS a ON l.id_autor = a.id WHERE a.nome = @nomeAutor";
+        string sql = "SELECT * FROM livro AS l JOIN autor AS a ON l.id = a.id WHERE a.id = @idAutor";
 
-            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
+        DataTable dt = _db.PreencherTabela(sql);
+
+        List<Livro> livros = new List<Livro>();
+
+        foreach (DataRow row in dt.Rows)
+        {
+            livros.Add(new Livro
             {
-                cmd.Parameters.AddWithValue("@nomeAutor", nomeAutor);
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        Livro livro = new Livro
-                        {
-                            Id = reader.GetInt32("id"),
-                            Titulo = reader.GetString("titulo"),
-                            Preco = reader.GetDouble("preco"),
-                            Estoque = reader.GetInt32("estoque"),
-                            IdAutor = reader.GetInt32("id_autor")
-                        };
-                        livros.Add(livro);
-                    }
-                }
-            }
+                Id    = Convert.ToInt32(row["id"]),
+                Titulo      = row["titulo"].ToString(),
+                Preco = Convert.ToDouble(row["preco"]),
+                Estoque    = Convert.ToInt32(row["estoque"]),
+                IdAutor = row["id_autor"] == DBNull.Value
+                        ? null
+                        : Convert.ToInt32(row["id_autor"])
+            });
         }
+
         return livros;
     }
 
-
-    public void AtualizarPrecoLivro(int id, double NovoPreco)
+    //refatorado
+    public void AtualizarLivro(Livro livro)
     {
-        using (MySqlConnection connection = new MySqlConnection(_connectionString))
+        string sql = "UPDATE livro SET titulo = @titulo, preco = @preco, " +
+                     "estoque = @estoque, id_autor = @idAutor" +
+                     "WHERE id = @id";
+
+        var parametros = new Dictionary<string, object>
         {
-            connection.Open();
-            string sql = "UPDATE livro SET preco = @preco WHERE id = @id";
+            { "@id",    livro.Id },
+            { "@titulo",      livro.Titulo! },
+            { "@preco", livro.Preco! },
+            { "@estoque",   livro.Estoque! },
+            { "@idAutor",   livro.IdAutor! }
+            
+        };
 
-            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("@id", id);
-                cmd.Parameters.AddWithValue("@preco", NovoPreco);
-
-                cmd.ExecuteNonQuery();
-            }
-        }
+        _db.ExecutarComando(sql, parametros);
     }
 
-    public void DeletarLivro(int id)
+    //rever, talvez o parametro não esteja correto
+    public void AtualizarPrecoLivro(Livro livro)
     {
-        using (MySqlConnection connection = new MySqlConnection(_connectionString))
+        string sql = "UPDATE livro SET preco = @preco WHERE id = @id";
+
+        var parametros = new Dictionary<string, object>
         {
-            connection.Open();
-            string sql = "DELETE FROM livro WHERE id = @id";
+            { "@id",    livro.Id },
+            { "@preco", livro.Preco! }
+        };
 
-            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("@id", id);
+        _db.ExecutarComando(sql, parametros);
+        
+    }
 
-                cmd.ExecuteNonQuery();
-            }
-        }
+    //refatorado
+    public void RemoverLivro(int id)
+    {
+        string sql = "DELETE FROM vendedor WHERE id = @id";
+
+        var parametros = new Dictionary<string, object>
+        {
+            { "@id", id }
+        };
+
+        _db.ExecutarComando(sql, parametros);
     }
 
 }
