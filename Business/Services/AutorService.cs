@@ -1,61 +1,51 @@
 namespace Services;
-
+using Data;
+using System.Data;
+using Business.Interfaces;
 using Entities;
 using MySqlConnector;
 
-public class AutorService
+public class AutorService : IAutorService
 {
-    private readonly string _connectionString = 
-                        "server=localhost;" +
-                       "database=livraria_ado_net;" +
-                       "uid=root;" +
-                       "pwd=1234";
+    private readonly DataBaseConnection _db = new DataBaseConnection();
 
-    public void CadastrarAutor(string nome, string nacionalidade)
+    public void CadastrarAutor(Autor autor)
     {
-        using (MySqlConnection connection = new MySqlConnection(_connectionString))
+         string sql = "INSERT INTO vendedor (nome, nacionalidade) " +
+                     "VALUES (@nome, @nacionalidade)";
+
+        var parametros = new Dictionary<string, object>
         {
-            connection.Open();
-            string sql = "INSERT INTO autor (nome, nacionalidade) VALUES (@nome, @nacionalidade)";
+            { "@nome",      autor.Nome! },
+            { "@matricula", autor.Nacionalidade! },
+        };
 
-            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("@nome", nome);
-                cmd.Parameters.AddWithValue("@nacionalidade", nacionalidade);
-
-                cmd.ExecuteNonQuery();
-            }
-        }
+        _db.ExecutarComando(sql, parametros);
     }
 
     public List<Autor> ListarAutores()
     {
-        List<Autor> autores = new List<Autor>();
-        using (MySqlConnection connection = new MySqlConnection(_connectionString))
-        {
-            connection.Open();
-            string sql = "SELECT id, nome, nacionalidade FROM autor";
+        string sql = "SELECT id, nome, nacionalidade, id- FROM autor";
 
-            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
+        DataTable dt = _db.PreencherTabela(sql);
+
+        List<Autor> autores = new List<Autor>();
+
+        foreach (DataRow row in dt.Rows)
+        {
+            autores.Add(new Autor
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        Autor autor = new Autor
-                        {
-                            Id = reader.GetInt32("id"),
-                            Nome = reader.GetString("nome"),
-                            Nacionalidade = reader.IsDBNull(reader.GetOrdinal("nacionalidade")) ? null : reader.GetString("nacionalidade")
-                        };
-                        autores.Add(autor);
-                    }
-                }
-            }
+                Id    = Convert.ToInt32(row["id_vend"]),
+                Nome      = row["nome"].ToString(),
+                Nacionalidade = row["nacionalidade"].ToString()
+            });
         }
+
         return autores;
     }
 
+
+    /*precisa refatorar ainda
     public Autor ? BuscarAutorPorNome(string nome)
     {
         using var connection = new MySqlConnection(_connectionString);
@@ -76,39 +66,32 @@ public class AutorService
             };
         }
         return null;
+    }*/
+
+    public void AtualizarAutor(Autor autor)
+    {
+        string sql = "UPDATE vendedor SET nome = @nome, nacionalidade = @nacionalidade" +
+                     "WHERE id = @id";
+
+        var parametros = new Dictionary<string, object>
+        {
+            { "@id", autor.Id },
+            { "@nome", autor.Nome! },
+            { "@nacionalidade", autor.Nacionalidade! },
+        };
+
+        _db.ExecutarComando(sql, parametros);
     }
 
-    public void AtualizarAutor(int id, string nome, string nacionalidade)
+    public void RemoverAutor(int id)
     {
-        using (MySqlConnection connection = new MySqlConnection(_connectionString))
+        string sql = "DELETE FROM autor WHERE id = @id";
+
+        var parametros = new Dictionary<string, object>
         {
-            connection.Open();
-            string sql = "UPDATE autor SET nome = @nome, nacionalidade = @nacionalidade WHERE id = @id";
+            { "@id", id }
+        };
 
-            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("@id", id);
-                cmd.Parameters.AddWithValue("@nome", nome);
-                cmd.Parameters.AddWithValue("@nacionalidade", nacionalidade);
-
-                cmd.ExecuteNonQuery();
-            }
-        }
-    }
-
-    public void DeletarAutor(int id)
-    {
-        using (MySqlConnection connection = new MySqlConnection(_connectionString))
-        {
-            connection.Open();
-            string sql = "DELETE FROM autor WHERE id = @id";
-
-            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("@id", id);
-
-                cmd.ExecuteNonQuery();
-            }
-        }
+        _db.ExecutarComando(sql, parametros);
     }
 }
