@@ -88,7 +88,7 @@ public class ClienteService
         string sql = "UPDATE cliente SET email = @novoEmail WHERE id = @id";
         using var cmd = new MySqlCommand(sql, connection);
         cmd.Parameters.AddWithValue("@novoEmail", NovoEmail);
-        cmd.paramenters.addWithValue("@id", id);
+        cmd.Parameters.AddWithValue("@id", id);
 
         cmd.ExecuteNonQuery();
     }
