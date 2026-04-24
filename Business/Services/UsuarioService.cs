@@ -12,7 +12,7 @@ public class UsuarioService
                        "uid=root;" +
                        "pwd=1234";
 
-    public Usuario ? Login(string email, string senha)
+    public Usuario ? Login(string username, string senha)
     {
         using (MySqlConnection connection = new MySqlConnection(_connectionString))
         {
@@ -21,7 +21,7 @@ public class UsuarioService
 
             using (MySqlCommand cmd = new MySqlCommand(sql, connection))
             {
-                cmd.Parameters.AddWithValue("@email", email);
+                cmd.Parameters.AddWithValue("@username", username);
                 using var reader = cmd.ExecuteReader();
                 
                 if (reader.Read())
