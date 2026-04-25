@@ -1,35 +1,34 @@
 namespace Services;
 
+using Data;
+using System.Data;
 using Entities;
 using MySqlConnector;
+using Business.Interfaces;
 
-public class ClienteService
+public class ClienteService : IClienteServices
 {
-    private readonly string _connectionString = 
-        "server=localhost;" +
-        "database=livraria_ado_net;" +
-        "uid=root;" +
-        "pwd=1234";
+    private readonly DataBaseConnection _db = new DataBaseConnection();
 
-    public void CadastrarCliente(string nome, string cpf, string email,
-                                string username, string senha, string nivel, string avatar)
+    //refatorado com problemas 
+    public void CadastrarCliente(Cliente cliente)
     {
-        using var connection = new MySqlConnection(_connectionString);
-        connection.Open();
-
         // // Primeiro usuário
         UsuarioService usuarioService = new UsuarioService();
         int idUsuario = usuarioService.CadastrarUsuario(username, senha, nivel, avatar);
 
-
         // Depois cliente
-        string sqlCliente = "INSERT INTO cliente (nome, cpf, email, usuario_id) VALUES (@nome, @cpf, @email, @usuario_id);";
-        using var cmdCliente = new MySqlCommand(sqlCliente, connection);
-        cmdCliente.Parameters.AddWithValue("@nome", nome);
-        cmdCliente.Parameters.AddWithValue("@cpf", cpf);
-        cmdCliente.Parameters.AddWithValue("@email", (object?)email ?? DBNull.Value);
-        cmdCliente.Parameters.AddWithValue("@usuario_id", idUsuario);
-        cmdCliente.ExecuteNonQuery();
+        string sqlCliente = "INSERT INTO cliente (nome, cpf, email, id_usuario) VALUES (@nome, @cpf, @email, @id_usuario);";
+
+        var parametros = new Dictionary<string, object>
+        {
+            { "@nome",      cliente.Nome! },
+            { "@cpf", cliente.Cpf! },
+            { "@email",   cliente.Email! },
+            { "@id_usuario", cliente.IdUsuario! } //tem que adicionar usuario em cliente no banco 
+        };
+
+        _db.ExecutarComando(sql, parametros);
     }
 
     public List<Cliente> ListarClientes()
@@ -80,6 +79,10 @@ public class ClienteService
         return null;
     }
 
+    public void AtualizarCliente(Cliente cliente)
+    {
+        
+    }
     public void AtualizarEmailCliente(int id, string NovoEmail)
     {
         using var connection = new MySqlConnection(_connectionString);
@@ -93,7 +96,7 @@ public class ClienteService
         cmd.ExecuteNonQuery();
     }
 
-    public void DeletarCliente(int id)
+    public void RemoverCliente(int id)
     {
         using (MySqlConnection connection = new MySqlConnection(_connectionString))
         {
