@@ -11,9 +11,12 @@ class Application {
 
         ClienteService clienteService = new ClienteService();
         UsuarioService usuarioService = new UsuarioService();
+        VendedorService vendedorService = new VendedorService();
+        LivroService livroService = new LivroService();
+        VendaService vendaService = new VendaService();
+        AutorService autorService = new AutorService();
+
         
-        clienteService.DeletarCliente(1);
-        // usuarioService.DeletarUsuario(2);
 
     }
 }
