@@ -3,7 +3,6 @@ using Data;
 using System.Data;
 using Business.Interfaces;
 using Entities;
-using MySqlConnector;
 
 public class AutorService : IAutorService
 {
@@ -28,45 +27,40 @@ public class AutorService : IAutorService
         string sql = "SELECT id, nome, nacionalidade, id- FROM autor";
 
         DataTable dt = _db.PreencherTabela(sql);
-
-        List<Autor> autores = new List<Autor>();
-
-        foreach (DataRow row in dt.Rows)
-        {
-            autores.Add(new Autor
+        
+        return dt.AsEnumerable()
+            .Select(row => new Autor
             {
-                Id    = Convert.ToInt32(row["id_vend"]),
-                Nome      = row["nome"].ToString(),
-                Nacionalidade = row["nacionalidade"].ToString()
-            });
-        }
-
-        return autores;
+                Id = row.Field<int>("id"),
+                Nome = row.Field<string>("nome"),
+                Nacionalidade = row.Field<string>("nacionalidade")
+            })
+            .ToList();
     }
 
-
-    /*precisa refatorar ainda
     public Autor ? BuscarAutorPorNome(string nome)
     {
-        using var connection = new MySqlConnection(_connectionString);
-        connection.Open();
-
         string sql = "SELECT * FROM autor WHERE nome = @nome";
-        using var cmd = new MySqlCommand(sql, connection);
-        cmd.Parameters.AddWithValue("@nome", nome);
-
-        using var reader = cmd.ExecuteReader();
-        if (reader.Read())
+        
+        var parametros = new Dictionary<string, object>
         {
+            {"nome", nome}
+        };
+
+        DataTable dt = _db.PreencherTabela(sql, parametros);
+
+        if (dt.Rows.Count > 0)
+        {
+            DataRow row = dt.Rows[0];
             return new Autor
             {
-                Id = reader.GetInt32("id"),
-                Nome = reader.GetString("nome"),
-                Nacionalidade = reader.GetString("nacionalidade")
+                Id = Convert.ToInt32(row["id"]),
+                Nome = row["nome"].ToString(),
+                Nacionalidade = row["nacionalidade"].ToString()
             };
         }
         return null;
-    }*/
+    }
 
     public void AtualizarAutor(Autor autor)
     {

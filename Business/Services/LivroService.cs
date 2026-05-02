@@ -1,139 +1,102 @@
 namespace Services;
 
-using Data;
-using System.Data;
 using Business.Interfaces;
 using Entities;
-using MySqlConnector;
+using Data;
+using System.Data;
 
 public class LivroService : ILivroService
 {
     private readonly DataBaseConnection _db = new DataBaseConnection();
 
-    //refatorado
     public void CadastrarLivro(Livro livro)
     {
-        //rever essa parte, metodo BuscarAutorPorNome não esta funcionando
-        AutorService autorService = new AutorService();
-        var autor = autorService.BuscarAutorPorNome(nomeAutor);
-        if (autor == null)
-        {
-            Console.WriteLine("Autor não encontrado.");
-            return;
-        }
-
-        string sql = "INSERT INTO livro (titulo, preco, estoque, id_autor)"+
-                     "VALUES (@titulo, @preco, @estoque, @id_autor)";
-
+        string sql = """
+            INSERT INTO livro (titulo, preco, estoque, id_autor)
+            VALUES (@titulo, @preco, @estoque, @id_autor)
+            """;
+        
         var parametros = new Dictionary<string, object>
         {
             { "@titulo", livro.Titulo! },
-            { "@preco", livro.Preco! },
-            { "@estoque", livro.Estoque! },
-            { "@idAutor", livro.IdAutor! }
+            { "@preco", livro.Preco },
+            {"@estoque", livro.Estoque },
+            { "@id_autor", livro.IdAutor! }
         };
 
         _db.ExecutarComando(sql, parametros);
-
     }
 
-    //refatorado
     public List<Livro> ListarLivros()
     {
         string sql = "SELECT * FROM livro";
 
-            DataTable dt = _db.PreencherTabela(sql);
+        DataTable dt = _db.PreencherTabela(sql);
 
-            List<Livro> livros = new List<Livro>();
-
-            foreach (DataRow row in dt.Rows)
+        return dt.AsEnumerable()
+            .Select(row => new Livro
             {
-                livros.Add(new Livro
-                {
-                    Id    = Convert.ToInt32(row["id"]),
-                    Titulo      = row["titulo"].ToString(),
-                    Preco = Convert.ToDouble(row["preco"]),
-                    Estoque    = Convert.ToInt32(row["estoque"]),
-                    IdAutor = row["id_autor"] == DBNull.Value
-                                ? null
-                                : Convert.ToInt32(row["id_autor"])
-                });
-            }
-
-        return livros;
+                Id = row.Field<int>("id"),
+                Titulo = row.Field<string>("titulo"),
+                Preco = row.Field<double>("preco"),
+                Estoque = row.Field<int>("estoque"),
+                IdAutor = row.Field<int>("id_autor")
+            })
+            .ToList();
     }
 
-    //refatorado
-    public List<Livro> ConsultarLivrosPorAutor(int id)
+    public List<Livro> ConsultarLivrosPorAutor(int autorId)
     {
-        string sql = "SELECT * FROM livro AS l JOIN autor AS a ON l.id = a.id WHERE a.id = @idAutor";
+        string sql = @"SELECT l. * FROM Livro l WHERE l.id_autor =  @autorId";
 
         DataTable dt = _db.PreencherTabela(sql);
 
-        List<Livro> livros = new List<Livro>();
-
-        foreach (DataRow row in dt.Rows)
+        var parametros = new Dictionary<string, object>
         {
-            livros.Add(new Livro
-            {
-                Id    = Convert.ToInt32(row["id"]),
-                Titulo      = row["titulo"].ToString(),
-                Preco = Convert.ToDouble(row["preco"]),
-                Estoque    = Convert.ToInt32(row["estoque"]),
-                IdAutor = row["id_autor"] == DBNull.Value
-                        ? null
-                        : Convert.ToInt32(row["id_autor"])
-            });
-        }
+            { "@idAutor", autorId }
+        };
 
-        return livros;
+        dt = _db.PreencherTabela(sql, parametros);
+
+        return dt.AsEnumerable()
+        .Select(row => new Livro
+        {
+            Id = row.Field<int>("id"), 
+            Titulo = row.Field<string>("titulo") ?? string.Empty,
+            Preco = row.Field<double>("preco"),
+            Estoque = row.Field<int>("estoque"),
+            IdAutor = row.Field<int>("id_autor"), 
+        })
+        .ToList();
     }
 
-    //refatorado
+
     public void AtualizarLivro(Livro livro)
     {
-        string sql = "UPDATE livro SET titulo = @titulo, preco = @preco, " +
-                     "estoque = @estoque, id_autor = @idAutor" +
-                     "WHERE id = @id";
+        string sql = "UPDATE livro SET titulo = @titulo, estoque = @estoque, preco = @preco, id_autor = @idAutor WHERE id = @id";
 
         var parametros = new Dictionary<string, object>
         {
-            { "@id",    livro.Id },
-            { "@titulo",      livro.Titulo! },
-            { "@preco", livro.Preco! },
-            { "@estoque",   livro.Estoque! },
-            { "@idAutor",   livro.IdAutor! }
-            
-        };
+            { "@id", livro.Id },
+            { "@titulo", livro.Titulo! },
+            { "@estoque", livro.Estoque },
+            { "@preco", livro.Preco },
+            { "@id_autor", livro.IdAutor! }
+        };  
 
         _db.ExecutarComando(sql, parametros);
+
     }
 
-    //rever, talvez o parametro não esteja correto
-    public void AtualizarPrecoLivro(Livro livro)
-    {
-        string sql = "UPDATE livro SET preco = @preco WHERE id = @id";
-
-        var parametros = new Dictionary<string, object>
-        {
-            { "@id",    livro.Id },
-            { "@preco", livro.Preco! }
-        };
-
-        _db.ExecutarComando(sql, parametros);
-        
-    }
-
-    //refatorado
     public void RemoverLivro(int id)
     {
-        string sql = "DELETE FROM vendedor WHERE id = @id";
+        string sql = "DELETE FROM livro WHERE id = @id";
 
         var parametros = new Dictionary<string, object>
         {
-            { "@id", id }
+            { "@id", id }  
         };
-
+          
         _db.ExecutarComando(sql, parametros);
     }
 
