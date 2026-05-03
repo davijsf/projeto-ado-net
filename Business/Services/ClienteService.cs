@@ -19,7 +19,7 @@ public class ClienteService : IClienteService
             { "@nome",      cliente.Nome! },
             { "@cpf", cliente.Cpf! },
             { "@email",   cliente.Email! },
-            { "@id_usuario", idUsuario } //tem que adicionar usuario em cliente no banco 
+            { "@id_usuario", idUsuario }
         };
 
         _db.ExecutarComando(sql, parametros);
@@ -34,7 +34,8 @@ public class ClienteService : IClienteService
        return dt.AsEnumerable()
         .Select(row => new Cliente
         {
-            Id = row.Field<int>("id"),
+            IdClient = row.Field<int>("id"),
+            Id = row.Field<int>("id_usuario"),
             Nome = row.Field<string>("nome"),
             Cpf = row.Field<string>("cpf"),
             Email = row.Field<string>("email"),
@@ -50,7 +51,7 @@ public class ClienteService : IClienteService
     {
         // Creio que o cliente só pode atualizar seu email
         // Sujeito à mudanças
-        string sql = "UPDATE cliente SET email = @ WHERE email = @id";
+        string sql = "UPDATE cliente SET email = @email WHERE id_usuario = @id";
 
         var parametros = new Dictionary<string, object>
         {

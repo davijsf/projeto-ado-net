@@ -8,7 +8,10 @@ CREATE TABLE cliente (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     cpf VARCHAR(14) NOT NULL UNIQUE,
-    email VARCHAR(100)
+    email VARCHAR(100),
+    id_usuario INT UNIQUE,
+    CONSTRAINT fk_cliente_usuario
+        FOREIGN KEY (id_usuario) REFERENCES usuario(id)
 );
 
 -- ===========================
