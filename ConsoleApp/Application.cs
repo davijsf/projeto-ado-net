@@ -18,7 +18,7 @@ class Application {
         AutorService autorService = new AutorService();
 
         
-        LivroMenu livroMenu = new LivroMenu(livroService);
+        LivroMenu livroMenu = new LivroMenu(livroService, autorService);
         bool sair = false;
         while (!sair)
         {

@@ -6,10 +6,12 @@ using Entities;
 public class LivroMenu
 {
     private readonly LivroService _livroService;
+    private readonly AutorService _autorService;
 
-    public LivroMenu(LivroService livroService)
+    public LivroMenu(LivroService livroService, AutorService autorService)
     {
         _livroService = livroService;
+        _autorService = autorService;
     }
 
     public void ExibirMenu()
@@ -60,22 +62,50 @@ public class LivroMenu
         Console.Write("Estoque: ");
         int estoque = Convert.ToInt32(Console.ReadLine());
 
-        Console.Write("Id do Autor: ");
-        int idAutor = Convert.ToInt32(Console.ReadLine());
+        Console.Write("Nome do Autor: ");
+        string nomeAutor = Console.ReadLine()!;
+
+        // Busca o autor pelo nome
+        Autor? autor = _autorService.BuscarPorNome(nomeAutor);
+
+        // Se não encontrar, cadastra
+        if (autor == null)
+        {
+            Console.WriteLine($"\nAutor '{nomeAutor}' não encontrado. Vamos cadastrá-lo!");
+
+            Console.Write("Nacionalidade: ");
+            string nacionalidade = Console.ReadLine()!;
+
+            autor = new Autor
+            {
+                Nome          = nomeAutor,
+                Nacionalidade = nacionalidade
+            };
+
+            _autorService.CadastrarAutor(autor);
+
+            autor = _autorService.BuscarPorNome(nomeAutor);
+
+            Console.WriteLine("Autor cadastrado com sucesso!");
+        }
+        else
+        {
+            Console.WriteLine($"\nAutor encontrado: {autor.Nome}");
+        }
 
         Livro livro = new Livro
         {
             Titulo  = titulo,
             Preco   = preco,
             Estoque = estoque,
-            IdAutor = idAutor
+            IdAutor = autor!.Id
         };
 
         _livroService.CadastrarLivro(livro);
 
         Console.WriteLine("\nLivro cadastrado com sucesso!");
         Console.ReadKey();
-    }
+}
 
     private void ListarLivros()
     {
