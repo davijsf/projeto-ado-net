@@ -88,4 +88,28 @@ public class AutorService : IAutorService
 
         _db.ExecutarComando(sql, parametros);
     }
+
+    public Autor? BuscarPorNome(string nome)
+    {
+        string sql = "SELECT * FROM autor WHERE nome = @nome";
+
+        var parametros = new Dictionary<string, object>
+        {
+            { "@nome", nome }
+        };
+
+        DataTable dt = _db.PreencherTabela(sql, parametros);
+
+        if (dt.Rows.Count == 0)
+            return null;
+
+        DataRow row = dt.Rows[0];
+
+        return new Autor
+        {
+            Id = row.Field<int>("id"),
+            Nome = row.Field<string>("nome"),
+            Nacionalidade = row.Field<string>("nacionalidade")
+        };
+    }
 }

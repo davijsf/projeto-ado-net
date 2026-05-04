@@ -7,5 +7,6 @@ public interface IAutorService
     List<Autor> ListarAutores();
     void AtualizarAutor(Autor autor);
     void RemoverAutor(int id);
+    Autor? BuscarPorNome(string nome);
 }
 
