@@ -10,16 +10,15 @@ public class ClienteService : IClienteService
     private readonly DataBaseConnection _db = new DataBaseConnection();
 
     //refatorado com problemas 
-    public void CadastrarCliente(Cliente cliente, int idUsuario)
+    public void CadastrarCliente(Cliente cliente)
     {
-        string sql = "INSERT INTO cliente (nome, cpf, email, id_usuario) VALUES (@nome, @cpf, @email, @id_usuario);";
-
+        // Deixei sem id usuário, por enquanto
+        string sql = "INSERT INTO cliente (nome, cpf, email) VALUES (@nome, @cpf, @email);";
         var parametros = new Dictionary<string, object>
         {
             { "@nome",      cliente.Nome! },
             { "@cpf", cliente.Cpf! },
-            { "@email",   cliente.Email! },
-            { "@id_usuario", idUsuario }
+            { "@email",   cliente.Email! }
         };
 
         _db.ExecutarComando(sql, parametros);
