@@ -5,50 +5,55 @@ using MySqlConnector;
 
 public class DataBaseConnection
 {
-    private string stConnection;
+    private readonly string _stConnection;
 
     public DataBaseConnection()
     {
-        stConnection = "server=localhost;" +
-                       "database=livraria_ado_net;" +
-                       "uid=root;" +
-                       "pwd=1234";
+        _stConnection = "server=localhost;" +
+                        "database=livraria_ado_net;" +
+                        "uid=root;" +
+                        "pwd=Mateus84+";
     }
 
     public void ExecutarComando(string query, Dictionary<string, object>? parametros = null)
     {
-        using (MySqlConnection conn = new MySqlConnection(stConnection))
-        {
-            conn.Open();
-            using (MySqlCommand cmd = new MySqlCommand(query, conn))
-            {
-                if (parametros != null)
-                    foreach (var p in parametros)
-                        cmd.Parameters.AddWithValue(p.Key, p.Value);
-
-                cmd.ExecuteNonQuery();
-            }
-        }
+        using MySqlConnection conn = new(_stConnection);
+        conn.Open();
+        using MySqlCommand cmd = new(query, conn);
+        AdicionarParametros(cmd, parametros);
+        cmd.ExecuteNonQuery();
     }
 
     public DataTable PreencherTabela(string query, Dictionary<string, object>? parametros = null)
     {
-        DataTable dt = new DataTable();
+        DataTable dt = new();
 
-        using (MySqlConnection conn = new MySqlConnection(stConnection))
-        {
-            conn.Open();
-            using (MySqlCommand cmd = new MySqlCommand(query, conn))
-            {
-                if (parametros != null)
-                    foreach (var p in parametros)
-                        cmd.Parameters.AddWithValue(p.Key, p.Value);
+        using MySqlConnection conn = new(_stConnection);
+        conn.Open();
+        using MySqlCommand cmd = new(query, conn);
+        AdicionarParametros(cmd, parametros);
 
-                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-                da.Fill(dt);
-            }
-        }
+        MySqlDataAdapter da = new(cmd);
+        da.Fill(dt);
 
         return dt;
+    }
+
+    public object? ExecutarScalar(string query, Dictionary<string, object>? parametros = null)
+    {
+        using MySqlConnection conn = new(_stConnection);
+        conn.Open();
+        using MySqlCommand cmd = new(query, conn);
+        AdicionarParametros(cmd, parametros);
+        return cmd.ExecuteScalar();
+    }
+
+    private static void AdicionarParametros(MySqlCommand cmd, Dictionary<string, object>? parametros)
+    {
+        if (parametros == null)
+            return;
+
+        foreach (var p in parametros)
+            cmd.Parameters.AddWithValue(p.Key, p.Value);
     }
 }
