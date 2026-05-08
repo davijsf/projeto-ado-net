@@ -57,7 +57,7 @@ public class LivroMenu
         string titulo = Console.ReadLine()!;
 
         Console.Write("Preço: ");
-        double preco = Convert.ToDouble(Console.ReadLine());
+        decimal preco = Convert.ToDecimal(Console.ReadLine());
 
         Console.Write("Estoque: ");
         int estoque = Convert.ToInt32(Console.ReadLine());
@@ -177,7 +177,7 @@ public class LivroMenu
         string titulo = Console.ReadLine()!;
 
         Console.Write("Novo Preço: ");
-        double preco = Convert.ToDouble(Console.ReadLine());
+        decimal preco = Convert.ToDecimal(Console.ReadLine());
 
         Console.Write("Novo Estoque: ");
         int estoque = Convert.ToInt32(Console.ReadLine());
