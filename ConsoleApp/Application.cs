@@ -11,7 +11,7 @@ class Application {
         DataBaseConnection db = new DataBaseConnection();
 
         ClienteService clienteService = new ClienteService();
-        //UsuarioService usuarioService = new UsuarioService();
+        UsuarioService usuarioService = new UsuarioService();
         VendedorService vendedorService = new VendedorService();
         LivroService livroService = new LivroService();
         VendaService vendaService = new VendaService();
@@ -19,12 +19,15 @@ class Application {
 
         
         LivroMenu livroMenu = new LivroMenu(livroService, autorService);
+        UsuarioMenu usuarioMenu = new UsuarioMenu(usuarioService); 
+
         bool sair = false;
         while (!sair)
         {
             Console.Clear();
             Console.WriteLine("=== LIVRARIA ===");
             Console.WriteLine("1. Livros");
+            Console.WriteLine("2. Usuário");
             Console.WriteLine("0. Sair");
             Console.Write("\nEscolha uma opção: ");
 
@@ -33,6 +36,7 @@ class Application {
             switch (opcao)
             {
                 case "1": livroMenu.ExibirMenu(); break;
+                case "2": usuarioMenu.ExibirMenu(); break;
                 case "0": sair = true; break;
                 default:
                     Console.WriteLine("Opção inválida!");
