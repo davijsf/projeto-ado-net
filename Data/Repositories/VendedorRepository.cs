@@ -3,6 +3,7 @@ namespace Data.Repositories;
 using Entities;
 using System.Data;
 using System.Linq;
+using Interfaces;
 
 public class VendedorRepository : RepositoryBase, IVendedorRepository
 {
@@ -14,7 +15,7 @@ public class VendedorRepository : RepositoryBase, IVendedorRepository
             { "@nome", vendedor.Nome! },
             { "@matricula", vendedor.Matricula! },
             { "@salario", vendedor.Salario },
-            { "@idUsuario", vendedor.IdUsuario ?? DBNull.Value }
+            { "@idUsuario", vendedor.IdUsuario! }
         };
 
         ExecuteNonQuery(sql, parametros);
@@ -46,7 +47,7 @@ public class VendedorRepository : RepositoryBase, IVendedorRepository
             { "@nome", vendedor.Nome! },
             { "@matricula", vendedor.Matricula! },
             { "@salario", vendedor.Salario },
-            { "@idUsuario", vendedor.IdUsuario ?? DBNull.Value }
+            { "@idUsuario", vendedor.IdUsuario!}
         };
 
         ExecuteNonQuery(sql, parametros);

@@ -33,7 +33,7 @@ public class AutorRepository : RepositoryBase
             .ToList();
     }
 
-    public Autor? BuscarAutorPorNome(string nome)
+    public Autor? BuscarPorNome(string nome)
     {
         const string sql = "SELECT id, nome, nacionalidade FROM autor WHERE nome = @nome";
         var parametros = new Dictionary<string, object>

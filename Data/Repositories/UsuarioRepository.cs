@@ -26,7 +26,7 @@ public class UsuarioRepository : RepositoryBase
             Username = row.Field<string>("username"),
             Senha = row.Field<string>("senha"),
             nivel = row.Field<string>("nivel"),
-            Avatar = row.Field<string>("avatar")
+            Avatar = row.Field<string>("avatar")!
         };
     }
 
@@ -63,7 +63,7 @@ public class UsuarioRepository : RepositoryBase
             Username = row.Field<string>("username"),
             Senha = row.Field<string>("senha"),
             nivel = row.Field<string>("nivel"),
-            Avatar = row.Field<string>("avatar")
+            Avatar = row.Field<string>("avatar")!
         };
     }
 

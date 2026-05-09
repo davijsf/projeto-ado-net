@@ -36,6 +36,43 @@ public class ClienteRepository : RepositoryBase
             .ToList();
     }
 
+    public Cliente ? BuscarPorCpf(string cpf)
+    {
+        const string sql = "SELECT * FROM cliente WHERE cpf = @cpf";
+        var parametros = new Dictionary<string, object>
+        {
+            {"@cpf", cpf}
+        };
+
+        DataTable dt = ExecuteTable(sql, parametros);
+        if (dt.Rows.Count == 0)
+            return null;
+
+        DataRow row = dt.Rows[0];
+        return new Cliente
+        {
+            Cpf = row.Field<string>("cpf")
+        };
+    }
+
+    public Cliente ? BuscarPorId(int id)
+    {
+        const string sql = "SELECT * FROM cliente WHERE id = @id";
+        var parametros = new Dictionary<string, object>
+        {
+            {"@id", id}
+        };
+
+        DataTable dt = ExecuteTable(sql, parametros);
+        if (dt.Rows.Count == 0)
+            return null;
+
+        DataRow row = dt.Rows[0];
+        return new Cliente
+        {
+            Id = row.Field<int>("id")
+        };
+    }
     public void AtualizarCliente(Cliente cliente)
     {
         const string sql = "UPDATE cliente SET nome = @nome, cpf = @cpf, email = @email WHERE id = @id";
