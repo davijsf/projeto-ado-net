@@ -18,11 +18,6 @@ public class AutorService : IAutorService
         return _repository.ListarAutores();
     }
 
-    public Autor? BuscarAutorPorNome(string nome)
-    {
-        return _repository.BuscarAutorPorNome(nome);
-    }
-
     public void AtualizarAutor(Autor autor)
     {
         _repository.AtualizarAutor(autor);
@@ -35,6 +30,6 @@ public class AutorService : IAutorService
 
     public Autor? BuscarPorNome(string nome)
     {
-        return _repository.BuscarAutorPorNome(nome);
+        return _repository.BuscarPorNome(nome);
     }
 }

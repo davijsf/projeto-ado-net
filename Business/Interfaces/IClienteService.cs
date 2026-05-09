@@ -8,4 +8,6 @@ public interface IClienteService
     List<Cliente> ListarClientes();
     void AtualizarCliente(Cliente cliente);
     void RemoverCliente(int id);
+    Cliente ? BuscarPorCpf(string cpf);
+    bool CpfValido(string cpf);
 }
