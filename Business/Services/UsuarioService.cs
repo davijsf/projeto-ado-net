@@ -31,11 +31,11 @@ public class UsuarioService : IUsuarioService
 
     public void AlterarNivelAcesso(int usuarioId, NivelAcesso nivel)
     {
-        _repository.AlterarNivelAcesso(usuarioId, nivel.ToString());
+        _repository.AlterarNivelAcesso(usuarioId, nivel);
     }
 
-    public void UploadAvatar(int usuarioId, byte[] imagem)
+    public void UploadAvatar(int usuarioId, string caminho_imagem)
     {
-        _repository.UploadAvatar(usuarioId, imagem);
+        _repository.UploadAvatar(usuarioId, caminho_imagem);
     }
 }
