@@ -1,7 +1,6 @@
 namespace ConsoleApp.Menus;
 
 using Entities;
-using Org.BouncyCastle.Tls;
 using Services;
 
 public class UsuarioMenu
@@ -16,39 +15,74 @@ public class UsuarioMenu
     public void ExibirMenu()
     {
         bool loop = true;
+        Usuario? usuarioLogado = null;
 
-        while(loop)
+        while (loop)
         {
             Console.Clear();
             Console.WriteLine("=== USUÁRIO MENU ===");
-            Console.WriteLine("1. Cadastrar usuário");
-            Console.WriteLine("2. Login");
-            Console.WriteLine("3. Alterar Nível de acesso");
-            Console.WriteLine("4. Upload em avatar");
-            Console.WriteLine("5. Buscar usuário");
-            Console.WriteLine("0. Voltar");
-            
-            Console.Write("Digite: ");
-            string opcao = Console.ReadLine()!;
 
-            switch(opcao)
+            if (usuarioLogado == null)
             {
-                case "1": CadastrarUsuario(); break;
-                case "2": Login(); break;
-                case "3": AlterarNivelAcesso(); break;
-                case "4": UploadAvatar(); break;
-                case "5": BuscarUsuario(); break;
-                case "0": loop = false; break;
-                default: 
-                    Console.WriteLine("Opção inválida."); 
-                    Console.ReadKey();    
-                    break;
+                Console.WriteLine("1. Cadastrar usuário");
+                Console.WriteLine("2. Login");
+                Console.WriteLine("0. Voltar");
+
+                Console.Write("Digite: ");
+                string opcao = Console.ReadLine()!;
+
+                switch (opcao)
+                {
+                    case "1": CadastrarUsuario(); break;
+                    case "2": usuarioLogado = Login(); break;
+                    case "0": loop = false; break;
+                    default:
+                        Console.WriteLine("Opção inválida.");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Logado como: {usuarioLogado.Username} [{usuarioLogado.nivel}]");
+
+                if (usuarioLogado.nivel == NivelAcesso.Admin)
+                    Console.WriteLine("3. Alterar Nível de acesso");
+
+                Console.WriteLine("4. Upload em avatar");
+                Console.WriteLine("5. Buscar usuário");
+                Console.WriteLine("6. Logout");
+                Console.WriteLine("0. Voltar");
+
+                Console.Write("Digite: ");
+                string opcao = Console.ReadLine()!;
+
+                switch (opcao)
+                {
+                    case "3":
+                        if (usuarioLogado.nivel == NivelAcesso.Admin)
+                            AlterarNivelAcesso();
+                        else
+                        {
+                            Console.WriteLine("Acesso negado!");
+                            Console.ReadKey();
+                        }
+                        break;
+                    case "4": UploadAvatar(usuarioLogado); break;
+                    case "5": BuscarUsuario(); break;
+                    case "6": usuarioLogado = null; break;
+                    case "0": loop = false; break;
+                    default:
+                        Console.WriteLine("Opção inválida.");
+                        Console.ReadKey();
+                        break;
+                }
             }
         }
     }
 
     public void CadastrarUsuario()
-    {  
+    {
         Console.Clear();
         Console.WriteLine("=== CADASTRAR USUÁRIO ===");
 
@@ -59,16 +93,16 @@ public class UsuarioMenu
         string senha = Console.ReadLine()!;
         senha = _usuarioService.CriptografarSenha(senha);
 
-        Console.Write("Nível: ");
-        string nivel = Console.ReadLine()!;
+        NivelAcesso nivel;
+        Console.Write("Nível (Comum ou Admin): ");
+        while (!Enum.TryParse<NivelAcesso>(Console.ReadLine(), ignoreCase: true, out nivel))
+            Console.Write("Nível inválido. Digite Comum ou Admin: ");
 
         Console.Write("Avatar: ");
         string avatar = Console.ReadLine()!;
 
-        // Vefirica se já existe um usuário com o mesmo username
-        Usuario ? usuario = _usuarioService.BuscarUsuarioPorUsername(username);
+        Usuario? usuario = _usuarioService.BuscarUsuarioPorUsername(username);
 
-        // Se não, cadastraaa
         if (usuario == null)
         {
             Console.WriteLine($"\nUsuário '{username}' não encontrado. Vamos cadastrá-lo!");
@@ -85,9 +119,14 @@ public class UsuarioMenu
             Console.WriteLine($"Usuário '{usuario.Username}' cadastrado com sucesso!");
             Console.ReadKey();
         }
+        else
+        {
+            Console.WriteLine($"Usuário '{username}' já existe!");
+            Console.ReadKey();
+        }
     }
 
-    public void Login()
+    public Usuario? Login()
     {
         Console.Clear();
         Console.WriteLine("=== LOGIN ===");
@@ -100,28 +139,27 @@ public class UsuarioMenu
 
         var login = _usuarioService.Login(username, senha);
 
-
-        // Senha incorreta ou username inválido
         if (login == null)
         {
             Console.WriteLine("Username ou senha inválidos!");
             Console.ReadKey();
+            return null;
         }
 
-        Console.WriteLine($"Bem vindo, {login?.Username}!");
+        Console.WriteLine($"Bem vindo, {login.Username}!");
         Console.ReadKey();
-
+        return login;
     }
 
     public void AlterarNivelAcesso()
     {
         Console.Clear();
-        Console.WriteLine("Olá, ADM!");
+        Console.WriteLine("=== ALTERAR NÍVEL DE ACESSO ===");
 
         Console.Write("Id do usuário: ");
-        int Id = Convert.ToInt32(Console.ReadLine());
+        int id = Convert.ToInt32(Console.ReadLine());
 
-        Console.WriteLine("Nivel do acesso: ");
+        Console.WriteLine("Nível de acesso:");
         Console.WriteLine("0 - Comum");
         Console.WriteLine("1 - Admin");
         Console.Write("Escolha: ");
@@ -130,22 +168,37 @@ public class UsuarioMenu
         while (!Enum.TryParse(Console.ReadLine(), out nivel))
             Console.Write("Opção inválida. Escolha 0 (Comum) ou 1 (Admin): ");
 
-        _usuarioService.AlterarNivelAcesso(Id, nivel);
+        _usuarioService.AlterarNivelAcesso(id, nivel);
+        Console.WriteLine("Nível alterado com sucesso!");
         Console.ReadKey();
     }
 
-    public void UploadAvatar()
+    public void UploadAvatar(Usuario usuario)
     {
-        
+        Console.Clear();
+        Console.WriteLine("=== UPLOAD AVATAR ===");
+
+        Console.Write("Caminho da imagem: ");
+        string caminhoOrigem = Console.ReadLine()!;
+
+        string? nomeAvatar = AvatarService.SalvarAvatar(usuario.Id, caminhoOrigem);
+
+        if (nomeAvatar != null)
+        {
+            _usuarioService.UploadAvatar(usuario.Id, nomeAvatar);
+            usuario.Avatar = nomeAvatar; // Atualiza o objeto em memória também
+            Console.WriteLine("Avatar atualizado com sucesso!");
+        }
+
+        Console.ReadKey();
     }
-     
 
     public void BuscarUsuario()
     {
         Console.Clear();
         Console.WriteLine("=== BUSCA DE USUÁRIO ===");
 
-        Console.WriteLine("Username: ");
+        Console.Write("Username: ");
         string username = Console.ReadLine()!;
 
         var usuario = _usuarioService.BuscarUsuarioPorUsername(username);
@@ -164,7 +217,5 @@ public class UsuarioMenu
         Console.WriteLine($"Avatar:   {usuario.Avatar ?? "Sem avatar"}");
         Console.WriteLine("------------------------");
         Console.ReadKey();
-
     }
 }
-
