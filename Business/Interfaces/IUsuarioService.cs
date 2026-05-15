@@ -8,5 +8,5 @@ public interface IUsuarioService
     Usuario? Login(string email, string senha);
     string CriptografarSenha(string senha);
     void AlterarNivelAcesso(int usuarioId, NivelAcesso nivel);
-    void UploadAvatar(int usuarioId, byte[] imagem);
+    void UploadAvatar(int usuarioId, string caminho_imagem);
 }
