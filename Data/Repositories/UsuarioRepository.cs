@@ -2,17 +2,17 @@ namespace Data.Repositories;
 
 using Entities;
 using System.Data;
-using System.Linq;
+using BCryptNet = BCrypt.Net.BCrypt; 
+
 
 public class UsuarioRepository : RepositoryBase
 {
-    public Usuario? Login(string email, string senha)
+   public Usuario? Login(string email, string senha)
     {
-        const string sql = "SELECT id, username, senha, nivel, avatar FROM usuario WHERE username = @username AND senha = @senha";
+        const string sql = "SELECT id, username, senha, nivel, avatar FROM usuario WHERE username = @username";
         var parametros = new Dictionary<string, object>
         {
-            { "@username", email },
-            { "@senha", senha }
+            { "@username", email }
         };
 
         DataTable dt = ExecuteTable(sql, parametros);
@@ -20,12 +20,18 @@ public class UsuarioRepository : RepositoryBase
             return null;
 
         DataRow row = dt.Rows[0];
+        string hashSalvo = row.Field<string>("senha")!;
+
+        // Verifica a senha contra o hash armazenado
+        if (!BCryptNet.Verify(senha, hashSalvo))
+            return null;
+
         return new Usuario
         {
             Id = row.Field<int>("id"),
-            Username = row.Field<string>("username"),
-            Senha = row.Field<string>("senha"),
-            nivel = row.Field<string>("nivel"),
+            Username = row.Field<string>("username")!,
+            Senha = hashSalvo,
+            nivel = Enum.Parse<NivelAcesso>(row.Field<string>("nivel")!, ignoreCase: true),
             Avatar = row.Field<string>("avatar")!
         };
     }
@@ -37,7 +43,7 @@ public class UsuarioRepository : RepositoryBase
         {
             { "@username", usuario.Username! },
             { "@senha", usuario.Senha! },
-            { "@nivel", usuario.nivel! },
+            { "@nivel", usuario.nivel!.ToString()},
             { "@avatar", usuario.Avatar! }
         };
 
@@ -62,29 +68,29 @@ public class UsuarioRepository : RepositoryBase
             Id = row.Field<int>("id"),
             Username = row.Field<string>("username"),
             Senha = row.Field<string>("senha"),
-            nivel = row.Field<string>("nivel"),
+            nivel = Enum.Parse<NivelAcesso>(row.Field<string>("nivel")!, ignoreCase: true),
             Avatar = row.Field<string>("avatar")!
         };
     }
 
-    public void AlterarNivelAcesso(int usuarioId, string nivel)
+    public void AlterarNivelAcesso(int usuarioId, NivelAcesso nivel)
     {
         const string sql = "UPDATE usuario SET nivel = @nivel WHERE id = @id";
         var parametros = new Dictionary<string, object>
         {
-            { "@nivel", nivel },
+            { "@nivel", nivel.ToString() },
             { "@id", usuarioId }
         };
 
         ExecuteNonQuery(sql, parametros);
     }
 
-    public void UploadAvatar(int usuarioId, byte[] imagem)
+    public void UploadAvatar(int usuarioId, string caminho_imagem)
     {
         const string sql = "UPDATE usuario SET avatar = @avatar WHERE id = @id";
         var parametros = new Dictionary<string, object>
         {
-            { "@avatar", imagem },
+            { "@avatar", caminho_imagem },
             { "@id", usuarioId }
         };
 
