@@ -6,12 +6,17 @@
 # dotenv files
 .env
 
+
 # User-specific files
+
 *.rsuser
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+
+# Avatars File
+avatars/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
