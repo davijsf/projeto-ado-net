@@ -1,6 +1,7 @@
 namespace Data;
 
 using System.Data;
+using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 
 public class DataBaseConnection
@@ -9,10 +10,13 @@ public class DataBaseConnection
 
     public DataBaseConnection()
     {
-        _stConnection = "server=localhost;" +
-                        "database=livraria_ado_net;" +
-                        "uid=root;" +
-                        "pwd=1234";
+        IConfiguration config = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+            .Build();
+
+        _stConnection = config.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found in appsettings.json.");
     }
 
     public void ExecutarComando(string query, Dictionary<string, object>? parametros = null)

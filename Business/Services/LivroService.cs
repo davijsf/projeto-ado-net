@@ -32,4 +32,8 @@ public class LivroService : ILivroService
     {
         _repository.RemoverLivro(id);
     }
+    public Livro? ConsultarLivroPorId(int id)
+    {
+        return _repository.ConsultarLivroPorId(id);
+    }
 }

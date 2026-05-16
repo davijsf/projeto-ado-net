@@ -28,6 +28,7 @@ class Application {
             Console.WriteLine("=== LIVRARIA ===");
             Console.WriteLine("1. Livros");
             Console.WriteLine("2. Usuário");
+            Console.WriteLine("3. Venda");
             Console.WriteLine("0. Sair");
             Console.Write("\nEscolha uma opção: ");
 

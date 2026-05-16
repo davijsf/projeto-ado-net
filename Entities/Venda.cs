@@ -3,7 +3,7 @@ namespace Entities;
 public class Venda
 {
     public int Id { get ; set ;}
-    public DateTime Data { get ; set ;}
+    public DateTime DataVenda { get ; set ;}
     public double Total { get ; set ;}
 
     // chave estrangeira

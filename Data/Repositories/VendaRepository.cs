@@ -11,7 +11,7 @@ public class VendaRepository : RepositoryBase
         const string sql = "INSERT INTO venda (data, total, id_cliente, id_vendedor) VALUES (@data, @total, @id_cliente, @id_vendedor); SELECT LAST_INSERT_ID();";
         var parametros = new Dictionary<string, object>
         {
-            { "@data", venda.Data },
+            { "@data", venda.DataVenda },
             { "@total", venda.Total },
             { "@id_cliente", venda.IdCliente },
             { "@id_vendedor", venda.IdVendedor }
@@ -29,7 +29,7 @@ public class VendaRepository : RepositoryBase
             throw new Exception("Livro não encontrado");
 
         decimal preco = Convert.ToDecimal(precoTable.Rows[0]["preco"]);
-        item.SubTotal = (double)(preco * item.Quantidade);
+        item.SubTotal = (decimal)(preco * item.Quantidade);
 
         const string sqlItem = "INSERT INTO itemvenda (quantidade, subtotal, id_livro, id_venda) VALUES (@quantidade, @subtotal, @id_livro, @id_venda)";
         var parametros = new Dictionary<string, object>
@@ -78,7 +78,7 @@ public class VendaRepository : RepositoryBase
             .Select(row => new Venda
             {
                 Id = Convert.ToInt32(row["id"]),
-                Data = Convert.ToDateTime(row["data"]),
+                DataVenda = Convert.ToDateTime(row["data"]),
                 Total = Convert.ToDouble(row["total"]),
                 IdCliente = Convert.ToInt32(row["id_cliente"]),
                 IdVendedor = Convert.ToInt32(row["id_vendedor"]),
@@ -103,7 +103,7 @@ public class VendaRepository : RepositoryBase
             .Select(row => new Venda
             {
                 Id = Convert.ToInt32(row["id"]),
-                Data = Convert.ToDateTime(row["data"]),
+                DataVenda = Convert.ToDateTime(row["data"]),
                 Total = Convert.ToDouble(row["total"]),
                 IdCliente = Convert.ToInt32(row["id_cliente"]),
                 IdVendedor = Convert.ToInt32(row["id_vendedor"]),

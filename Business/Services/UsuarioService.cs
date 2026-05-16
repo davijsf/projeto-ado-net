@@ -38,4 +38,8 @@ public class UsuarioService : IUsuarioService
     {
         _repository.UploadAvatar(usuarioId, caminho_imagem);
     }
+    public void DeletarUsuario(int usuarioId)
+    {
+        _repository.DeletarUsuario(usuarioId);
+    }
 }

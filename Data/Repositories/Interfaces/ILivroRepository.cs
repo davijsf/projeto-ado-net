@@ -9,4 +9,5 @@ public interface ILivroRepository
     void AtualizarLivro(Livro livro);
     void RemoverLivro(int id);
     List<Livro> ConsultarLivrosPorAutor(int autorId);
+    public Livro? ConsultarLivroPorId(int id);
 }

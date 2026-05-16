@@ -7,6 +7,6 @@ public class Usuario
     public string ? Senha { get ; set ; }
     
     public NivelAcesso nivel { get ; set ; }
-    // Incerto sobre o tipo do avatar
+
     public string ? Avatar { get ; set ; }
 }
