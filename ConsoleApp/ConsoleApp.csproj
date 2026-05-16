@@ -10,6 +10,11 @@
   <ItemGroup>
     <PackageReference Include="MySql.Data" Version="9.6.0" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>

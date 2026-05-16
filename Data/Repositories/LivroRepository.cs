@@ -83,4 +83,26 @@ public class LivroRepository : RepositoryBase
 
         ExecuteNonQuery(sql, parametros);
     }
+    public Livro? ConsultarLivroPorId(int id)
+    {
+        const string sql = "SELECT id, titulo, preco, estoque, id_autor FROM livro WHERE id = @id";
+        var parametros = new Dictionary<string, object>
+        {
+            { "@id", id }
+        };
+
+        DataTable dt = ExecuteTable(sql, parametros);
+        if (dt.Rows.Count == 0)
+            return null;
+
+        DataRow row = dt.Rows[0];
+        return new Livro
+        {
+            Id = row.Field<int>("id"),
+            Titulo = row.Field<string>("titulo"),
+            Preco = row.Field<decimal>("preco"),
+            Estoque = row.Field<int>("estoque"),
+            IdAutor = row.Field<int>("id_autor")
+        };
+    }
 }

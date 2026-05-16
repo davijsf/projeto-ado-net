@@ -48,10 +48,11 @@ public class UsuarioMenu
 
                 if (usuarioLogado.nivel == NivelAcesso.Admin)
                     Console.WriteLine("3. Alterar Nível de acesso");
+                    Console.WriteLine("4. Deletar usuário");
+                    Console.WriteLine("5. Buscar usuário");
 
-                Console.WriteLine("4. Upload em avatar");
-                Console.WriteLine("5. Buscar usuário");
-                Console.WriteLine("6. Logout");
+                Console.WriteLine("6. Upload em avatar");
+                Console.WriteLine("7. Logout");
                 Console.WriteLine("0. Voltar");
 
                 Console.Write("Digite: ");
@@ -68,9 +69,18 @@ public class UsuarioMenu
                             Console.ReadKey();
                         }
                         break;
-                    case "4": UploadAvatar(usuarioLogado); break;
+                    case "4":
+                        if (usuarioLogado.nivel == NivelAcesso.Admin)
+                            DeletarUsuario();
+                        else
+                        {
+                            Console.WriteLine("Acesso negado!");
+                            Console.ReadKey();
+                        }
+                        break;    
                     case "5": BuscarUsuario(); break;
-                    case "6": usuarioLogado = null; break;
+                    case "6": UploadAvatar(usuarioLogado); break;
+                    case "7": usuarioLogado = null; break;
                     case "0": loop = false; break;
                     default:
                         Console.WriteLine("Opção inválida.");
@@ -85,7 +95,7 @@ public class UsuarioMenu
     {
         Console.Clear();
         Console.WriteLine("=== CADASTRAR USUÁRIO ===");
-
+        
         Console.Write("Username: ");
         string username = Console.ReadLine()!;
 
@@ -216,6 +226,18 @@ public class UsuarioMenu
         Console.WriteLine($"Nível:    {usuario.nivel}");
         Console.WriteLine($"Avatar:   {usuario.Avatar ?? "Sem avatar"}");
         Console.WriteLine("------------------------");
+        Console.ReadKey();
+    }
+    public void DeletarUsuario()
+    {
+        Console.Clear();
+        Console.WriteLine("=== DELETAR USUÁRIO ===");
+
+        Console.Write("Id do usuário: ");
+        int id = Convert.ToInt32(Console.ReadLine());
+
+        _usuarioService.DeletarUsuario(id);
+        Console.WriteLine("Usuário deletado com sucesso!");
         Console.ReadKey();
     }
 }

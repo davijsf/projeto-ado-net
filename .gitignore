@@ -5,7 +5,7 @@
 
 # dotenv files
 .env
-
+ConsoleApp/appsettings.json
 
 # User-specific files
 
@@ -17,6 +17,7 @@
 
 # Avatars File
 avatars/
+
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -396,6 +397,7 @@ FodyWeavers.xsd
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+
 
 # Local History for Visual Studio Code
 .history/

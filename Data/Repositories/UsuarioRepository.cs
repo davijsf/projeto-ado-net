@@ -96,4 +96,16 @@ public class UsuarioRepository : RepositoryBase
 
         ExecuteNonQuery(sql, parametros);
     }
+    public void DeletarUsuario(int usuarioId)
+    {
+        const string sql = "DELETE FROM usuario WHERE id = @id";
+        var parametros = new Dictionary<string, object>
+        {
+            { "@id", usuarioId }
+        };
+
+        ExecuteNonQuery(sql, parametros);
+    }
 }
+
+

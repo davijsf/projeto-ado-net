@@ -9,4 +9,5 @@ public interface IUsuarioService
     string CriptografarSenha(string senha);
     void AlterarNivelAcesso(int usuarioId, NivelAcesso nivel);
     void UploadAvatar(int usuarioId, string caminho_imagem);
+    void DeletarUsuario(int usuarioId);
 }
