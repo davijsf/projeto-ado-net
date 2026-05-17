@@ -1,4 +1,4 @@
-namespace Menus;
+namespace ConsoleApp.Menus;
 using Business.Interfaces;
 using Entities;
 using Services;
@@ -6,7 +6,9 @@ public class VendaMenu
 {
     private readonly VendaService _vendaService;
     private readonly LivroService _livroService;
-    public VendaMenu()
+    private Carrinho? _carrinho;
+
+    public VendaMenu(LivroService livroService, VendaService vendaService)
     {
         _livroService = new LivroService();
         _vendaService = new VendaService();
@@ -19,24 +21,18 @@ public class VendaMenu
         {
             Console.Clear();
             Console.WriteLine("=== Menu de Vendas ===");
-            Console.WriteLine("1. Registrar Venda");
-            Console.WriteLine("2. Adicionar Item à Venda");
-            Console.WriteLine("3. Remover Item da Venda");
-            Console.WriteLine("4. Calcular Total da Venda");
-            Console.WriteLine("5. Listar Vendas");
-            Console.WriteLine("6. Consultar Vendas por Cliente");
+            Console.WriteLine("1. Nova Venda");
+            Console.WriteLine("2. Listar Vendas");
+            Console.WriteLine("3. Consultar Vendas por Cliente");
             Console.WriteLine("0. Voltar");
-            Console.Write("Digite: ");
+            Console.Write("\nEscolha uma opção: ");
             string escolha = Console.ReadLine() ?? "";
 
             switch (escolha)
             {
-                case "1": RegistrarVenda(); break;
-                case "2": AdicionarItem(); break;
-                case "3": RemoverItem(); break;
-                case "4": CalcularTotal(); break;
-                case "5": ListarVendas(); break;
-                case "6": ConsultarVendasPorCliente(); break;
+                case "1": NovaVenda(); break;
+                case "2": ListarVendas(); break;
+                case "3": ConsultarVendasPorCliente(); break;
                 case "0": loop = false; break;
                 default:
                     Console.WriteLine("Opção inválida!");
@@ -46,79 +42,256 @@ public class VendaMenu
         }
     }
 
-    private void RegistrarVenda()
+    private void NovaVenda()
     {
-        Console.Write("Digite o ID do cliente: ");
-        int clienteId = int.Parse(Console.ReadLine()!);
+        Console.Clear();
+        Console.WriteLine("=== Nova Venda ===");   
 
-        var venda = new Venda
+        Console.Write("ID do Cliente: ");
+        int idCliente = int.Parse(Console.ReadLine() !);
+
+        Console.Write("ID do Vendedor: ");
+        int idVendedor = int.Parse(Console.ReadLine() !);
+
+        _carrinho = new Carrinho
         {
-            IdCliente = clienteId,
-            DataVenda = DateTime.Now
+            IdCliente = idCliente,
+            IdVendedor = idVendedor
         };
 
-        _vendaService.RegistrarVenda(venda);
-        Console.WriteLine($"Venda registrada com ID: {venda.Id}");
-        Console.ReadKey();
+        bool loop = true;
+        while (loop)
+        {
+            Console.WriteLine("=== Carrinho ===");
+            ExibirCarrinho();
+            Console.WriteLine("\n1. Adicionar Livro");
+            Console.WriteLine("2. Remover Livro");
+            Console.WriteLine("3. Confirmar Venda");
+            Console.WriteLine("0. Cancelar");
+            Console.Write("\nEscolha uma opção: ");
+            string escolha = Console.ReadLine() ?? "";
+
+            switch (escolha)
+            {
+                case "1": AdicionarAoCarrinho(); break;
+                case "2": RemoverDoCarrinho(); break;
+                case "3": 
+                    if (ConfirmarVenda()) 
+                        loop = false;   
+                    break;
+                case "0":
+                    Console.WriteLine("Venda cancelada!");
+                    Console.ReadKey();
+                    loop = false; 
+                    break;
+                default:
+                    Console.WriteLine("Opção inválida!");
+                    Console.ReadKey();
+                    break;
+            }
+        }
+
+        _carrinho = null;
     }
 
-    private void AdicionarItem()
+    private void ExibirCarrinho()
     {
-       Console.WriteLine("id do livro: ");
-         int livroId = int.Parse(Console.ReadLine()!);
-         
-        var livro = _livroService.ConsultarLivroPorId(livroId);
-        if (livro == null)        {
+        if (_carrinho == null || _carrinho.Itens.Count == 0)
+        {
+            Console.WriteLine("Carrinho vazio.");
+            return;
+        }
+
+        Console.WriteLine($"{"#", -4} {"Titulo", -30} {"Qtd", -5} {"Preço Unit.", -12} {"Subtotal"}");
+        Console.WriteLine(new string('-', 60));
+
+        for (int i = 0; i < _carrinho.Itens.Count; i++)
+        {
+            var item = _carrinho.Itens[i];
+            Console.WriteLine($"{i + 1, -4} {item.TituloLivro, -30} {item.Quantidade, -5} R$ {item.PrecoUnitario, -10:F2} R$ {item.SubTotal:F2}");
+        }
+
+        Console.WriteLine(new string('-', 60));
+        Console.WriteLine($"{"Total:", -50} R$ {_carrinho.Total:F2}");
+    }
+
+    private void AdicionarAoCarrinho()
+    {
+        Console.Clear();
+        Console.WriteLine("=== Adicionar livro ===\n");
+
+        Console.Write("Nome do Livro: ");
+        string nomeLivro = Console.ReadLine()!;
+
+        var livro = _livroService.BuscarPorNome(nomeLivro);
+
+        if (livro == null)
+        {
             Console.WriteLine("Livro não encontrado!");
             Console.ReadKey();
             return;
         }
 
-        Console.WriteLine("Quantidade: ");
+        Console.WriteLine($"Encontrado: {livro.Titulo} | R$ {livro.Preco:F2} | Estoque: {livro.Estoque}");
+        Console.Write("Quantidade: ");
         int quantidade = int.Parse(Console.ReadLine()!);
-        if (quantidade > livro.Estoque || quantidade <= 0)
+
+        if (quantidade <= 0 || quantidade > livro.Estoque)
         {
-            Console.WriteLine("Estoque insuficiente ou valor inválido!");
+            Console.WriteLine("Quantidade inválida ou estoque insuficiente!");
             Console.ReadKey();
             return;
         }
 
-        var item = new ItemVenda
+        // Verifica se o livro já está no carrinho
+        var itemExistente = _carrinho!.Itens.FirstOrDefault(i => i.IdLivro == livro.Id);
+
+        if (itemExistente != null)
         {
-            IdLivro = livroId,
-            Quantidade = quantidade,
-            SubTotal = livro.Preco
+            itemExistente.Quantidade += quantidade;
+        }
+        else
+        {
+            _carrinho.Itens.Add(new ItemCarrinho
+            {
+                IdLivro       = livro.Id,
+                TituloLivro   = livro.Titulo,
+                Quantidade    = quantidade,
+                PrecoUnitario = (decimal)livro.Preco
+            });
+        }
+
+        Console.WriteLine($"\nAdicionado! Subtotal: R$ {quantidade * (decimal)livro.Preco:F2}");
+        Console.ReadKey();
+    }    
+
+    private void RemoverDoCarrinho()
+    {
+        Console.Clear();
+        Console.WriteLine("=== REMOVER LIVRO ===\n");
+
+        ExibirCarrinho();
+
+        if (_carrinho!.Itens.Count == 0)
+        {
+            Console.ReadKey();
+            return;
+        }
+
+        Console.Write("\nNúmero do item a remover: ");
+        int numero = int.Parse(Console.ReadLine()!);
+
+        if (numero < 1 || numero > _carrinho.Itens.Count)
+        {
+            Console.WriteLine("Item inválido!");
+            Console.ReadKey();
+            return;
+        }
+
+        _carrinho.Itens.RemoveAt(numero - 1);
+        Console.WriteLine("Item removido!");
+        Console.ReadKey();
+    }
+
+    private bool ConfirmarVenda()
+    {
+        if (_carrinho!.Itens.Count == 0)
+        {
+            Console.WriteLine("\nCarrinho vazio! Adicione itens antes de confirmar.");
+            Console.ReadKey();
+            return false;
+        }
+
+        Console.Clear();
+        Console.WriteLine("=== CONFIRMAR VENDA ===\n");
+        ExibirCarrinho();
+
+        Console.Write("\nConfirmar? (s/n): ");
+        if (Console.ReadLine()!.ToLower() != "s")
+            return false;
+
+        // Cria a venda no banco
+        var venda = new Venda
+        {
+            IdCliente  = _carrinho.IdCliente,
+            IdVendedor = _carrinho.IdVendedor,
+            DataVenda  = DateTime.Now,
+            Total      = (double)_carrinho.Total
         };
 
-        _vendaService.AdicionarItem(livroId, item);
-        Console.WriteLine("Item adicionado à venda!");
-    }
+        _vendaService.RegistrarVenda(venda);
 
-    private void RemoverItem()
-    {
-        Console.WriteLine("ID da venda: ");
-        int vendaId = int.Parse(Console.ReadLine()!);
-        Console.WriteLine("ID do item: ");
-        int itemId = int.Parse(Console.ReadLine()!);
+        // Salva cada item no banco
+        foreach (var item in _carrinho.Itens)
+        {
+            var itemVenda = new ItemVenda
+            {
+                IdLivro    = item.IdLivro,
+                Quantidade = item.Quantidade,
+                SubTotal   = item.SubTotal,
+                IdVenda    = venda.Id
+            };
 
-        _vendaService.RemoverItem(vendaId, itemId);
-        Console.WriteLine("Item removido da venda!");
-        // fazer o carrinho de compras, para mostrar os itens da venda e o id do item para remover
-       
-    }
+            _vendaService.AdicionarItem(venda.Id, itemVenda);
+        }
 
-    private void CalcularTotal()
-    {
-        
+        Console.WriteLine($"\nVenda #{venda.Id} confirmada! Total: R$ {_carrinho.Total:F2}");
+        Console.ReadKey();
+        return true;
     }
 
     private void ListarVendas()
     {
-    
+        Console.Clear();
+        Console.WriteLine("=== LISTA DE VENDAS ===\n");
+
+        List<Venda> vendas = _vendaService.ListarVendas();
+
+        if (vendas.Count == 0)
+        {
+            Console.WriteLine("Nenhuma venda registrada.");
+            Console.ReadKey();
+            return;
+        }
+
+        foreach (var venda in vendas)
+        {
+            Console.WriteLine($"Id: {venda.Id}");
+            Console.WriteLine($"Data: {venda.DataVenda:dd/MM/yyyy HH:mm}");
+            Console.WriteLine($"Cliente: {venda.Cliente?.Nome}");
+            Console.WriteLine($"Vendedor: {venda.Vendedor?.Nome}");
+            Console.WriteLine($"Total: R$ {venda.Total:F2}");
+            Console.WriteLine(new string('-', 40));
+        }
+
+        Console.ReadKey();
     }
 
     private void ConsultarVendasPorCliente()
     {
-        
+        Console.Clear();
+        Console.WriteLine("=== VENDAS POR CLIENTE ===\n");
+
+        Console.Write("Id do Cliente: ");
+        int clienteId = int.Parse(Console.ReadLine()!);
+
+        List<Venda> vendas = _vendaService.ConsultarVendasPorCliente(clienteId);
+
+        if (vendas.Count == 0)
+        {
+            Console.WriteLine("Nenhuma venda encontrada para esse cliente.");
+            Console.ReadKey();
+            return;
+        }
+
+        foreach (var venda in vendas)
+        {
+            Console.WriteLine($"Id: {venda.Id}");
+            Console.WriteLine($"Data: {venda.DataVenda:dd/MM/yyyy HH:mm}");
+            Console.WriteLine($"Total: R$ {venda.Total:F2}");
+            Console.WriteLine(new string('-', 40));
+        }
+
+        Console.ReadKey();
     }
 }

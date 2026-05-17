@@ -20,6 +20,7 @@ class Application {
         
         LivroMenu livroMenu = new LivroMenu(livroService, autorService);
         UsuarioMenu usuarioMenu = new UsuarioMenu(usuarioService); 
+        VendaMenu vendaMenu = new VendaMenu(livroService, vendaService);
 
         bool sair = false;
         while (!sair)
@@ -38,6 +39,7 @@ class Application {
             {
                 case "1": livroMenu.ExibirMenu(); break;
                 case "2": usuarioMenu.ExibirMenu(); break;
+                case "3": vendaMenu.ExibirMenu(); break;
                 case "0": sair = true; break;
                 default:
                     Console.WriteLine("Opção inválida!");
