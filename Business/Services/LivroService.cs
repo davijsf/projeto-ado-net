@@ -36,4 +36,8 @@ public class LivroService : ILivroService
     {
         return _repository.ConsultarLivroPorId(id);
     }
+    public Livro? BuscarPorNome(string titulo)
+    {
+        return _repository.BuscarPorNome(titulo);
+    }
 }

@@ -10,4 +10,5 @@ public interface ILivroService
     void RemoverLivro(int id);
     List<Livro> ConsultarLivrosPorAutor(int autorId);
     public Livro? ConsultarLivroPorId(int id);
+    Livro? BuscarPorNome(string titulo);
 }
