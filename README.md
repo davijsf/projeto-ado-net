@@ -152,11 +152,8 @@ Edite com suas credenciais locais:
 
 ```json
 {
-  "Database": {
-    "Server": "localhost",
-    "Database": "livraria_ado_net",
-    "Uid": "root",
-    "Pwd": "sua_senha_aqui"
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=livraria_ado_net;Uid=root;Pwd=sua_senha_aqui;"
   }
 }
 ```
