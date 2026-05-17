@@ -105,4 +105,29 @@ public class LivroRepository : RepositoryBase
             IdAutor = row.Field<int>("id_autor")
         };
     }
+    public Livro? BuscarPorNome(string titulo)
+{
+    string sql = "SELECT * FROM livro WHERE titulo LIKE @titulo";
+
+    var parametros = new Dictionary<string, object>
+    {
+        { "@titulo", $"%{titulo}%" }
+    };
+
+    DataTable dt = ExecuteTable(sql, parametros);
+
+    if (dt.Rows.Count == 0)
+        return null;
+
+    DataRow row = dt.Rows[0];
+    return new Livro
+    {
+        Id      = row.Field<int>("id"),
+        Titulo  = row.Field<string>("titulo"),
+        Preco = row.Field<decimal>("preco"),
+        Estoque = row.Field<int>("estoque"),
+        IdAutor = row.Field<int>("id_autor")
+    };
+}
+
 }
