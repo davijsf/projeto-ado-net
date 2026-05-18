@@ -9,5 +9,6 @@ public interface IClienteService
     void AtualizarCliente(Cliente cliente);
     void RemoverCliente(int id);
     Cliente ? BuscarPorCpf(string cpf);
+    Cliente? BuscarPorIdUsuario(int idUsuario);
     bool CpfValido(string cpf);
 }
