@@ -145,7 +145,7 @@ public class UsuarioMenu
         string username = Console.ReadLine()!;
 
         Console.Write("Senha: ");
-        string senha = Console.ReadLine()!;
+        string senha = LerSenha();
 
         var login = _usuarioService.Login(username, senha);
 
@@ -161,6 +161,36 @@ public class UsuarioMenu
         return login;
     }
 
+    private string LerSenha()
+    {
+        string senha = "";
+
+        while (true)
+        {
+            ConsoleKeyInfo tecla = Console.ReadKey(intercept: true); // intercept: true = não mostra no console
+
+            if (tecla.Key == ConsoleKey.Enter)
+            {
+                Console.WriteLine();
+                break;
+            }
+            else if (tecla.Key == ConsoleKey.Backspace)
+            {
+                if (senha.Length > 0)
+                {
+                    senha = senha[..^1];
+                    Console.Write("\b \b"); 
+                }
+            }
+            else
+            {
+                senha += tecla.KeyChar;
+                Console.Write("*"); 
+            }
+        }
+
+        return senha;
+    }
     public void AlterarNivelAcesso()
     {
         Console.Clear();
@@ -239,5 +269,15 @@ public class UsuarioMenu
         _usuarioService.DeletarUsuario(id);
         Console.WriteLine("Usuário deletado com sucesso!");
         Console.ReadKey();
+    }
+    public void ExibirPerfil(Usuario usuario)
+{
+    Console.Clear();
+    Console.WriteLine("=== MEU PERFIL ===\n");
+    Console.WriteLine($"Id:       {usuario.Id}");
+    Console.WriteLine($"Username: {usuario.Username}");
+    Console.WriteLine($"Nível:    {usuario.nivel}");
+    Console.WriteLine($"Avatar:   {usuario.Avatar ?? "Sem avatar"}");
+    Console.ReadKey();
     }
 }

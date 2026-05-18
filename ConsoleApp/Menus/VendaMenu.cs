@@ -6,15 +6,17 @@ public class VendaMenu
 {
     private readonly VendaService _vendaService;
     private readonly LivroService _livroService;
+    private readonly ClienteService _clienteService;
     private Carrinho? _carrinho;
 
-    public VendaMenu(LivroService livroService, VendaService vendaService)
+    public VendaMenu(LivroService livroService, VendaService vendaService, ClienteService clienteService)
     {
         _livroService = new LivroService();
         _vendaService = new VendaService();
+        _clienteService = new ClienteService();
     }
 
-    public void ExibirMenu()
+    public void ExibirMenu(Usuario usuarioLogado)
     {
         bool loop = true;
         while (loop)
@@ -23,16 +25,26 @@ public class VendaMenu
             Console.WriteLine("=== Menu de Vendas ===");
             Console.WriteLine("1. Nova Venda");
             Console.WriteLine("2. Listar Vendas");
-            Console.WriteLine("3. Consultar Vendas por Cliente");
+
+            if (usuarioLogado.nivel == NivelAcesso.Admin)
+                Console.WriteLine("3. Consultar Vendas por Cliente");
             Console.WriteLine("0. Voltar");
             Console.Write("\nEscolha uma opção: ");
             string escolha = Console.ReadLine() ?? "";
 
             switch (escolha)
             {
-                case "1": NovaVenda(); break;
+                case "1": NovaVenda(usuarioLogado); break;
                 case "2": ListarVendas(); break;
-                case "3": ConsultarVendasPorCliente(); break;
+                case "3": 
+                    if (usuarioLogado.nivel == NivelAcesso.Admin)
+                        ConsultarVendasPorCliente(); 
+                    else
+                    {
+                        Console.WriteLine("Acesso negado!");
+                        Console.ReadKey();
+                    }
+                    break;
                 case "0": loop = false; break;
                 default:
                     Console.WriteLine("Opção inválida!");
@@ -42,16 +54,38 @@ public class VendaMenu
         }
     }
 
-    private void NovaVenda()
+    private void NovaVenda(Usuario usuarioLogado)
     {
         Console.Clear();
         Console.WriteLine("=== Nova Venda ===");   
 
-        Console.Write("ID do Cliente: ");
-        int idCliente = int.Parse(Console.ReadLine() !);
+        int idCliente;
+        int idVendedor;
 
-        Console.Write("ID do Vendedor: ");
-        int idVendedor = int.Parse(Console.ReadLine() !);
+        if (usuarioLogado.nivel == NivelAcesso.Admin)
+        {
+            Console.Write("ID do Cliente: ");
+            idCliente = int.Parse(Console.ReadLine() !);
+
+            Console.Write("ID do Vendedor: ");
+            idVendedor = int.Parse(Console.ReadLine() !);
+        }
+        else
+        {
+            var cliente = _clienteService.BuscarPorIdUsuario(usuarioLogado.Id);
+
+            if (cliente == null)
+            {
+                Console.WriteLine("Você não está cadastrado como cliente!");
+                Console.WriteLine("Entre em contato com um administrador.");
+                Console.ReadKey();
+                return;
+            }
+
+            idCliente  = cliente.IdClient;
+            idVendedor = 0; // sem vendedor para compra online
+            Console.WriteLine($"Cliente: {cliente.Nome}");
+        }
 
         _carrinho = new Carrinho
         {

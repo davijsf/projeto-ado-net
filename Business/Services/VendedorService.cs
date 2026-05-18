@@ -27,7 +27,7 @@ public class VendedorService : IVendedorService
 
     public List<Vendedor> ListarVendedores()
     {
-        string sql = "SELECT id_vend, nome, matricula, salario, id_usuario FROM vendedor";
+        string sql = "SELECT id, nome, matricula, salario, id_usuario FROM vendedor";
 
         DataTable dt = _db.PreencherTabela(sql);
 
@@ -37,7 +37,7 @@ public class VendedorService : IVendedorService
         {
             vendedores.Add(new Vendedor
             {
-                IdVend    = Convert.ToInt32(row["id_vend"]),
+                IdVend    = Convert.ToInt32(row["id"]),
                 Nome      = row["nome"].ToString(),
                 Matricula = row["matricula"].ToString(),
                 Salario   = Convert.ToDouble(row["salario"]),
@@ -54,7 +54,7 @@ public class VendedorService : IVendedorService
     {
         string sql = "UPDATE vendedor SET nome = @nome, matricula = @matricula, " +
                      "salario = @salario, id_usuario = @idUsuario " +
-                     "WHERE id_vend = @idVend";
+                     "WHERE id = @idVend";
 
         var parametros = new Dictionary<string, object>
         {

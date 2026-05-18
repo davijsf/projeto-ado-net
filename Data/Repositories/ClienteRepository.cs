@@ -28,7 +28,7 @@ public class ClienteRepository : RepositoryBase
             .Select(row => new Cliente
             {
                 IdClient = row.Field<int>("id"),
-                Id = row.Field<int>("id_usuario"),
+                IdUsuario = row.Field<int?>("id_usuario"),
                 Nome = row.Field<string>("nome"),
                 Cpf = row.Field<string>("cpf"),
                 Email = row.Field<string>("email")
@@ -97,4 +97,27 @@ public class ClienteRepository : RepositoryBase
 
         ExecuteNonQuery(sql, parametros);
     }
+
+    public Cliente? BuscarPorIdUsuario(int idUsuario)
+{
+    const string sql = "SELECT * FROM cliente WHERE id_usuario = @idUsuario";
+    var parametros = new Dictionary<string, object>
+    {
+        { "@idUsuario", idUsuario }
+    };
+
+    DataTable dt = ExecuteTable(sql, parametros);
+    if (dt.Rows.Count == 0)
+        return null;
+
+    DataRow row = dt.Rows[0];
+    return new Cliente
+    {
+        IdClient  = row.Field<int>("id"),
+        Nome      = row.Field<string>("nome"),
+        Cpf       = row.Field<string>("cpf"),
+        Email     = row.Field<string>("email"),
+        IdUsuario = row.Field<int>("id_usuario")
+    };
+}
 }
