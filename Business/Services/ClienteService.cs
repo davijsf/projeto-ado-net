@@ -79,4 +79,9 @@ public class ClienteService : IClienteService
     {
         _repository.RemoverCliente(id);
     }
+
+    public Cliente? BuscarPorIdUsuario(int idUsuario)
+    {
+        return _repository.BuscarPorIdUsuario(idUsuario);
+    }
 }
