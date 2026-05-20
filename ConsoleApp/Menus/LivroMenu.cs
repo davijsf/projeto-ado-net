@@ -173,33 +173,40 @@ public class LivroMenu
         Console.Write("Id do Livro a atualizar: ");
         int id = Convert.ToInt32(Console.ReadLine());
 
-        Console.Write("Novo Título: ");
-        string titulo = Console.ReadLine()!;
+        Livro livro = _livroService.ConsultarLivroPorId(id)!;
 
-        Console.Write("Novo Preço: ");
-        decimal preco = Convert.ToDecimal(Console.ReadLine());
-
-        Console.Write("Novo Estoque: ");
-        int estoque = Convert.ToInt32(Console.ReadLine());
-
-        Console.Write("Novo Id do Autor: ");
-        int idAutor = Convert.ToInt32(Console.ReadLine());
-
-        Livro livro = new Livro
+        if (livro == null)
         {
-            Id      = id,
-            Titulo  = titulo,
-            Preco   = preco,
-            Estoque = estoque,
-            IdAutor = idAutor
-        };
+            Console.WriteLine("Livro não encontrado!");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.Write($"Novo Título ({livro.Titulo}): ");
+        string titulo = Console.ReadLine()!;
+        if (!string.IsNullOrWhiteSpace(titulo))
+            livro.Titulo = titulo;
+
+        Console.Write($"Novo Preço ({livro.Preco}): ");
+        string precoInput = Console.ReadLine()!;
+        if (!string.IsNullOrWhiteSpace(precoInput))
+            livro.Preco = Convert.ToDecimal(precoInput);
+
+        Console.Write($"Novo Estoque ({livro.Estoque}): ");
+        string estoqueInput = Console.ReadLine()!;
+        if (!string.IsNullOrWhiteSpace(estoqueInput))
+            livro.Estoque = Convert.ToInt32(estoqueInput);
+
+        Console.Write($"Novo Id do Autor ({livro.IdAutor}): ");
+        string idAutorInput = Console.ReadLine()!;
+        if (!string.IsNullOrWhiteSpace(idAutorInput))
+            livro.IdAutor = Convert.ToInt32(idAutorInput);
 
         _livroService.AtualizarLivro(livro);
 
         Console.WriteLine("\nLivro atualizado com sucesso!");
         Console.ReadKey();
     }
-
     private void RemoverLivro()
     {
         Console.Clear();

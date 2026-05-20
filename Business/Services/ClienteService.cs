@@ -32,6 +32,12 @@ public class ClienteService : IClienteService
 
     public Cliente ? BuscarPorCpf(string cpf)
     {
+        // Verificação se o USER digitar '00011122233'
+        // O seguinte código irá adicionar os '.' e '-' a busca.
+        if (cpf.Length == 11 && cpf.All(char.IsDigit))
+            cpf = $"{cpf[..3]}.{cpf[3..6]}.{cpf[6..9]}-{cpf[9..]}";
+
+
         return _repository.BuscarPorCpf(cpf);
     }
 
