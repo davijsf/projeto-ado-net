@@ -54,6 +54,27 @@ public class AutorRepository : RepositoryBase
         };
     }
 
+    public Autor? BuscarPorId(int id)
+    {
+        const string sql = "SELECT id, nome, nacionalidade FROM autor WHERE id = @id";
+        var parametros = new Dictionary<string, object>
+        {
+            { "@id", id }
+        };
+
+        DataTable dt = ExecuteTable(sql, parametros);
+        if (dt.Rows.Count == 0)
+            return null;
+
+        DataRow row = dt.Rows[0];
+        return new Autor
+        {
+            Id = row.Field<int>("id"),
+            Nome = row.Field<string>("nome"),
+            Nacionalidade = row.Field<string>("nacionalidade")
+        };
+    }
+
     public void AtualizarAutor(Autor autor)
     {
         const string sql = "UPDATE autor SET nome = @nome, nacionalidade = @nacionalidade WHERE id = @id";

@@ -1,82 +1,110 @@
 namespace Services;
 
 using Business.Interfaces;
-using Data;
+using Data.Repositories;
 using Entities;
-using System.Data;
 
 public class VendedorService : IVendedorService
 {
-    private readonly DataBaseConnection _db = new DataBaseConnection();
+    private readonly VendedorRepository _repository = new VendedorRepository();
 
     public void CadastrarVendedor(Vendedor vendedor)
     {
-        string sql = "INSERT INTO vendedor (nome, matricula, salario, id_usuario) " +
-                     "VALUES (@nome, @matricula, @salario, @idUsuario)";
+        // Regra 1: Nome obrigatório
+        if (string.IsNullOrWhiteSpace(vendedor.Nome))
+            throw new ArgumentException(
+                "Nome do vendedor é obrigatório.");
 
-        var parametros = new Dictionary<string, object>
-        {
-            { "@nome",      vendedor.Nome! },
-            { "@matricula", vendedor.Matricula! },
-            { "@salario",   vendedor.Salario },
-            { "@idUsuario", vendedor.IdUsuario! }
-        };
+        // Regra 2: Matrícula obrigatória
+        if (string.IsNullOrWhiteSpace(vendedor.Matricula))
+            throw new ArgumentException(
+                "Matrícula é obrigatória.");
 
-        _db.ExecutarComando(sql, parametros);
+        // Regra 3: Salário válido
+        if (vendedor.Salario <= 0)
+            throw new ArgumentException(
+                "Salário deve ser maior que zero.");
+
+        // Regra 4: Matrícula única
+        var matriculaExistente =
+            _repository.BuscarPorMatricula(vendedor.Matricula);
+
+        if (matriculaExistente != null)
+            throw new InvalidOperationException(
+                "Matrícula já cadastrada.");
+
+        _repository.CadastrarVendedor(vendedor);
     }
 
     public List<Vendedor> ListarVendedores()
     {
-        string sql = "SELECT id, nome, matricula, salario, id_usuario FROM vendedor";
-
-        DataTable dt = _db.PreencherTabela(sql);
-
-        List<Vendedor> vendedores = new List<Vendedor>();
-
-        foreach (DataRow row in dt.Rows)
-        {
-            vendedores.Add(new Vendedor
-            {
-                IdVend    = Convert.ToInt32(row["id"]),
-                Nome      = row["nome"].ToString(),
-                Matricula = row["matricula"].ToString(),
-                Salario   = Convert.ToDouble(row["salario"]),
-                IdUsuario = row["id_usuario"] == DBNull.Value
-                            ? null
-                            : Convert.ToInt32(row["id_usuario"])
-            });
-        }
-
-        return vendedores;
+        return _repository.ListarVendedores();
     }
 
     public void AtualizarVendedor(Vendedor vendedor)
     {
-        string sql = "UPDATE vendedor SET nome = @nome, matricula = @matricula, " +
-                     "salario = @salario, id_usuario = @idUsuario " +
-                     "WHERE id = @idVend";
+        // Regra 1: vendedor deve existir
+        var vendedorExistente =
+            _repository.BuscarPorId(vendedor.IdVend);
 
-        var parametros = new Dictionary<string, object>
+        if (vendedorExistente == null)
+            throw new InvalidOperationException(
+                "Vendedor não encontrado.");
+
+        // Atualização parcial
+        vendedorExistente.Nome =
+            string.IsNullOrWhiteSpace(vendedor.Nome)
+            ? vendedorExistente.Nome
+            : vendedor.Nome;
+
+        vendedorExistente.Matricula =
+            string.IsNullOrWhiteSpace(vendedor.Matricula)
+            ? vendedorExistente.Matricula
+            : vendedor.Matricula;
+
+        vendedorExistente.Salario =
+            vendedor.Salario <= 0
+            ? vendedorExistente.Salario
+            : vendedor.Salario;
+
+        vendedorExistente.IdUsuario =
+            vendedor.IdUsuario == null
+            ? vendedorExistente.IdUsuario
+            : vendedor.IdUsuario;
+
+        // Regra 2: matrícula única (somente se alterou)
+        if (!string.IsNullOrWhiteSpace(vendedorExistente.Matricula) &&
+            vendedorExistente.Matricula != vendedorExistente.Matricula)
         {
-            { "@idVend",    vendedor.IdVend },
-            { "@nome",      vendedor.Nome! },
-            { "@matricula", vendedor.Matricula! },
-            { "@salario",   vendedor.Salario },
-            { "@idUsuario", vendedor.IdUsuario! }
-        };
+            var matriculaEmUso =
+                _repository.BuscarPorMatricula(
+                    vendedorExistente.Matricula);
 
-        _db.ExecutarComando(sql, parametros);
+            if (matriculaEmUso != null &&
+                matriculaEmUso.IdVend != vendedor.IdVend)
+            {
+                throw new InvalidOperationException(
+                    "Esta matrícula já pertence a outro vendedor.");
+            }
+        }
+
+        // Regra 3: salário válido
+        if (vendedorExistente.Salario <= 0)
+            throw new ArgumentException(
+                "Salário deve ser maior que zero.");
+
+        _repository.AtualizarVendedor(vendedorExistente);
     }
 
-    public void RemoverVendedor(int id)
-    {
-        string sql = "DELETE FROM vendedor WHERE id_vend = @id";
-
-        var parametros = new Dictionary<string, object>
+        public void RemoverVendedor(int id)
         {
-            { "@id", id }
-        };
+            var vendedor =
+                _repository.BuscarPorId(id);
 
-        _db.ExecutarComando(sql, parametros);
+            if (vendedor == null)
+                throw new InvalidOperationException(
+                    "Vendedor não encontrado.");
+
+            _repository.RemoverVendedor(id);
+        }
     }
-}

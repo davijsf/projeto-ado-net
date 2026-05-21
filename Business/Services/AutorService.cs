@@ -20,7 +20,21 @@ public class AutorService : IAutorService
 
     public void AtualizarAutor(Autor autor)
     {
-        _repository.AtualizarAutor(autor);
+        var autorExistente = _repository.BuscarPorId(autor.Id);
+
+        if (autorExistente == null)
+            throw new InvalidOperationException("Autor não encontrado.");
+
+        // autualização parcial
+        autorExistente.Nome = string.IsNullOrWhiteSpace(autor.Nome)
+            ? autorExistente.Nome
+            : autor.Nome;
+
+        autorExistente.Nacionalidade = string.IsNullOrWhiteSpace(autor.Nacionalidade)
+            ? autorExistente.Nacionalidade
+            : autor.Nacionalidade;
+        
+        _repository.AtualizarAutor(autorExistente);
     }
 
     public void RemoverAutor(int id)

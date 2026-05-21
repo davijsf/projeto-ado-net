@@ -51,7 +51,9 @@ public class ClienteRepository : RepositoryBase
         DataRow row = dt.Rows[0];
         return new Cliente
         {
-            Cpf = row.Field<string>("cpf")
+            Nome = row.Field<string>("nome"),
+            Cpf = row.Field<string>("cpf"),
+            Email = row.Field<string>("email")
         };
     }
 

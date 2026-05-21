@@ -17,9 +17,21 @@ public class ClienteService : IClienteService
         if (string.IsNullOrWhiteSpace(cliente.Cpf))
             throw new ArgumentException("Cpf do cliente é obrigatório.");
 
-        // Regra 2: Formato e validade do CPF
-        if (!CpfValido(cliente.Cpf))
-            throw new ArgumentException("Cpf inválido.");
+       // Remove máscara caso exista (. e -)
+        string cpf = new string(cliente.Cpf.Where(char.IsDigit).ToArray());
+
+        // Regra 1: CPF deve possuir 11 dígitos
+        if (cpf.Length != 11)
+            throw new ArgumentException("CPF deve conter 11 dígitos.");
+
+        // Regra 2: Validar CPF
+        if (!CpfValido(cpf))
+            throw new ArgumentException("CPF inválido.");
+
+        // Regra 3: Formatar CPF para armazenamento/exibição
+        cpf = $"{cpf[..3]}.{cpf[3..6]}.{cpf[6..9]}-{cpf[9..]}";
+
+        cliente.Cpf = cpf;
 
         // Regra 3: Cpf já cadastrado (unicidade)
         var source = _repository.BuscarPorCpf(cliente.Cpf);
@@ -32,12 +44,6 @@ public class ClienteService : IClienteService
 
     public Cliente ? BuscarPorCpf(string cpf)
     {
-        // Verificação se o USER digitar '00011122233'
-        // O seguinte código irá adicionar os '.' e '-' a busca.
-        if (cpf.Length == 11 && cpf.All(char.IsDigit))
-            cpf = $"{cpf[..3]}.{cpf[3..6]}.{cpf[6..9]}-{cpf[9..]}";
-
-
         return _repository.BuscarPorCpf(cpf);
     }
 
@@ -52,33 +58,61 @@ public class ClienteService : IClienteService
         return _repository.ListarClientes();
     }
 
+
     public void AtualizarCliente(Cliente cliente)
     {
-        // Regra 1: cliente deve existir
-        var clienteExistente = _repository.BuscarPorId(cliente.Id);
+        var clienteExistente = _repository.BuscarPorId(cliente.IdClient);
+
         if (clienteExistente == null)
             throw new InvalidOperationException("Cliente não encontrado.");
 
-        // Regra 2: campos obrigatórios
-        if (string.IsNullOrWhiteSpace(cliente.Nome))
-            throw new ArgumentException("Nome do cliente é obrigatório.");
+        // Atualização parcial
+        clienteExistente.Nome = string.IsNullOrWhiteSpace(cliente.Nome)
+            ? clienteExistente.Nome
+            : cliente.Nome;
 
-        if (string.IsNullOrWhiteSpace(cliente.Cpf))
-            throw new ArgumentException("CPF é obrigatório.");
+        clienteExistente.Email = string.IsNullOrWhiteSpace(cliente.Email)
+            ? clienteExistente.Email
+            : cliente.Email;
 
-        // Regra 3: CPF válido
-        if (!CpfValido(cliente.Cpf))
-            throw new ArgumentException("CPF inválido.");
+        // CPF: manter antigo se vazio
+        string cpfOriginal = string.IsNullOrWhiteSpace(cliente.Cpf)
+            ? clienteExistente.Cpf ?? ""
+            : cliente.Cpf;
 
-        // Regra 4: se mudou o CPF, verificar se o novo já pertence a outro cliente
-        if (cliente.Cpf != clienteExistente.Cpf)
+        // Normalizar
+        string cpf = new string(
+            cpfOriginal.Where(char.IsDigit).ToArray()
+        );
+
+        // Validar apenas se existir CPF
+        if (!string.IsNullOrWhiteSpace(cpf))
         {
-            var cpfEmUso = _repository.BuscarPorCpf(cliente.Cpf);
-            if (cpfEmUso != null)
-                throw new InvalidOperationException("Este CPF já está cadastrado para outro cliente.");
+            if (cpf.Length != 11)
+                throw new ArgumentException(
+                    "CPF deve conter 11 dígitos.");
+
+            if (!CpfValido(cpf))
+                throw new ArgumentException(
+                    "CPF inválido.");
+
+            cpf = $"{cpf[..3]}.{cpf[3..6]}.{cpf[6..9]}-{cpf[9..]}";
+
+            if (cpf != clienteExistente.Cpf)
+            {
+                var cpfEmUso = _repository.BuscarPorCpf(cpf);
+
+                if (cpfEmUso != null &&
+                    cpfEmUso.IdClient != cliente.IdClient)
+                {
+                    throw new InvalidOperationException(
+                        "Este CPF já está cadastrado para outro cliente.");
+                }
+            }
         }
 
-        _repository.AtualizarCliente(cliente);
+        clienteExistente.Cpf = cpf;
+        _repository.AtualizarCliente(clienteExistente);
     }
 
     public void RemoverCliente(int id)
