@@ -1,283 +1,344 @@
-namespace ConsoleApp.Menus;
+// // namespace ConsoleApp.Menus;
 
-using Entities;
-using Services;
+// // using Entities;
+// // using Services;
 
-public class UsuarioMenu
-{
-    private readonly UsuarioService _usuarioService;
+// // public class UsuarioMenu
+// // {
+// //     private readonly UsuarioService _usuarioService;
 
-    public UsuarioMenu(UsuarioService usuarioService)
-    {
-        _usuarioService = usuarioService;
-    }
+// //     public UsuarioMenu(UsuarioService usuarioService)
+// //     {
+// //         _usuarioService = usuarioService;
+// //     }
 
-    public void ExibirMenu()
-    {
-        bool loop = true;
-        Usuario? usuarioLogado = null;
+// //     public void ExibirMenu()
+// //     {
+// //         Usuario? usuarioLogado = null;
+// //         bool loop = true;
 
-        while (loop)
-        {
-            Console.Clear();
-            Console.WriteLine("=== USUÁRIO MENU ===");
+// //         while (loop)
+// //         {
+// //             Console.Clear();
 
-            if (usuarioLogado == null)
-            {
-                Console.WriteLine("1. Cadastrar usuário");
-                Console.WriteLine("2. Login");
-                Console.WriteLine("0. Voltar");
+// //             if (usuarioLogado == null)
+// //             {
+// //                 loop = MenuPublico(ref usuarioLogado);
+// //             }
+// //             else
+// //             {
+// //                 loop = MenuPrivado(ref usuarioLogado);
+// //             }
+// //         }
+// //     }
 
-                Console.Write("Digite: ");
-                string opcao = Console.ReadLine()!;
+// //     // ===================== MENU PÚBLICO =====================
+// //     private bool MenuPublico(ref Usuario? usuarioLogado)
+// //     {
+// //         Console.WriteLine("=== MENU USUÁRIO (PÚBLICO) ===");
+// //         Console.WriteLine("1. Cadastrar usuário");
+// //         Console.WriteLine("2. Listar usuários");
+// //         Console.WriteLine("3. Login");
+// //         Console.WriteLine("0. Sair");
 
-                switch (opcao)
-                {
-                    case "1": CadastrarUsuario(); break;
-                    case "2": usuarioLogado = Login(); break;
-                    case "0": loop = false; break;
-                    default:
-                        Console.WriteLine("Opção inválida.");
-                        Console.ReadKey();
-                        break;
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Logado como: {usuarioLogado.Username} [{usuarioLogado.nivel}]");
+// //         Console.Write("Digite: ");
+// //         string opcao = Console.ReadLine()!;
 
-                if (usuarioLogado.nivel == NivelAcesso.Admin)
-                    Console.WriteLine("3. Alterar Nível de acesso");
-                    Console.WriteLine("4. Deletar usuário");
-                    Console.WriteLine("5. Buscar usuário");
+// //         switch (opcao)
+// //         {
+// //             case "1": CadastrarUsuario(); break;
+// //             case "2": ListarUsuarios(); break;
+// //             case "3": usuarioLogado = Login(); break;
+// //             case "0": return false;
 
-                Console.WriteLine("6. Upload em avatar");
-                Console.WriteLine("7. Logout");
-                Console.WriteLine("0. Voltar");
+// //             default:
+// //                 Console.WriteLine("Opção inválida!");
+// //                 Console.ReadKey();
+// //                 break;
+// //         }
 
-                Console.Write("Digite: ");
-                string opcao = Console.ReadLine()!;
+// //         return true;
+// //     }
 
-                switch (opcao)
-                {
-                    case "3":
-                        if (usuarioLogado.nivel == NivelAcesso.Admin)
-                            AlterarNivelAcesso();
-                        else
-                        {
-                            Console.WriteLine("Acesso negado!");
-                            Console.ReadKey();
-                        }
-                        break;
-                    case "4":
-                        if (usuarioLogado.nivel == NivelAcesso.Admin)
-                            DeletarUsuario();
-                        else
-                        {
-                            Console.WriteLine("Acesso negado!");
-                            Console.ReadKey();
-                        }
-                        break;    
-                    case "5": BuscarUsuario(); break;
-                    case "6": UploadAvatar(usuarioLogado); break;
-                    case "7": usuarioLogado = null; break;
-                    case "0": loop = false; break;
-                    default:
-                        Console.WriteLine("Opção inválida.");
-                        Console.ReadKey();
-                        break;
-                }
-            }
-        }
-    }
+// //     // ===================== MENU PRIVADO =====================
+// //     private bool MenuPrivado(ref Usuario? usuarioLogado)
+// //     {
+// //         Console.WriteLine("=== MENU USUÁRIO (LOGADO) ===");
+// //         Console.WriteLine($"Usuário: {usuarioLogado!.Username}");
+// //         Console.WriteLine();
+// //         Console.WriteLine("1. Meu perfil");
+// //         Console.WriteLine("2. Atualizar usuário");
+// //         Console.WriteLine("3. Alterar nível de acesso (Admin)");
+// //         Console.WriteLine("4. Deletar usuário (Admin)");
+// //         Console.WriteLine("5. Buscar usuário");
+// //         Console.WriteLine("6. Upload avatar");
+// //         Console.WriteLine("7. Logout");
+// //         Console.WriteLine("0. Sair");
 
-    public void CadastrarUsuario()
-    {
-        Console.Clear();
-        Console.WriteLine("=== CADASTRAR USUÁRIO ===");
-        
-        Console.Write("Username: ");
-        string username = Console.ReadLine()!;
+// //         Console.Write("Digite: ");
+// //         string opcao = Console.ReadLine()!;
 
-        Console.Write("Senha: ");
-        string senha = Console.ReadLine()!;
-        senha = _usuarioService.CriptografarSenha(senha);
+// //         switch (opcao)
+// //         {
+// //             case "1": ExibirPerfil(usuarioLogado); break;
+// //             case "2": AtualizarUsuario(usuarioLogado); break;
 
-        NivelAcesso nivel;
-        Console.Write("Nível (Comum ou Admin): ");
-        while (!Enum.TryParse<NivelAcesso>(Console.ReadLine(), ignoreCase: true, out nivel))
-            Console.Write("Nível inválido. Digite Comum ou Admin: ");
+// //             case "3":
+// //                 if (usuarioLogado.nivel == NivelAcesso.Admin)
+// //                     AlterarNivelAcesso();
+// //                 else
+// //                     AcessoNegado();
+// //                 break;
 
-        Console.Write("Avatar: ");
-        string avatar = Console.ReadLine()!;
+// //             case "4":
+// //                 if (usuarioLogado.nivel == NivelAcesso.Admin)
+// //                     DeletarUsuario();
+// //                 else
+// //                     AcessoNegado();
+// //                 break;
 
-        Usuario? usuario = _usuarioService.BuscarUsuarioPorUsername(username);
+// //             case "5": BuscarUsuario(); break;
+// //             case "6": UploadAvatar(usuarioLogado); break;
 
-        if (usuario == null)
-        {
-            Console.WriteLine($"\nUsuário '{username}' não encontrado. Vamos cadastrá-lo!");
+// //             case "7":
+// //                 usuarioLogado = null;
+// //                 Console.WriteLine("Logout realizado!");
+// //                 Console.ReadKey();
+// //                 break;
 
-            usuario = new Usuario
-            {
-                Username = username,
-                Senha = senha,
-                nivel = nivel,
-                Avatar = avatar
-            };
+// //             case "0": return false;
 
-            _usuarioService.CadastrarUsuario(usuario);
-            Console.WriteLine($"Usuário '{usuario.Username}' cadastrado com sucesso!");
-            Console.ReadKey();
-        }
-        else
-        {
-            Console.WriteLine($"Usuário '{username}' já existe!");
-            Console.ReadKey();
-        }
-    }
+// //             default:
+// //                 Console.WriteLine("Opção inválida!");
+// //                 Console.ReadKey();
+// //                 break;
+// //         }
 
-    public Usuario? Login()
-    {
-        Console.Clear();
-        Console.WriteLine("=== LOGIN ===");
+// //         return true;
+// //     }
 
-        Console.Write("Username: ");
-        string username = Console.ReadLine()!;
+// //     // ===================== FUNÇÕES =====================
 
-        Console.Write("Senha: ");
-        string senha = LerSenha();
+// //     public void CadastrarUsuario()
+// //     {
+// //         Console.Clear();
+// //         Console.WriteLine("=== CADASTRAR USUÁRIO ===");
 
-        var login = _usuarioService.Login(username, senha);
+// //         Console.Write("Username: ");
+// //         string username = Console.ReadLine()!;
 
-        if (login == null)
-        {
-            Console.WriteLine("Username ou senha inválidos!");
-            Console.ReadKey();
-            return null;
-        }
+// //         Console.Write("Senha: ");
+// //         string senha = _usuarioService.CriptografarSenha(Console.ReadLine()!);
 
-        Console.WriteLine($"Bem vindo, {login.Username}!");
-        Console.ReadKey();
-        return login;
-    }
+// //         Console.Write("Nível (Comum/Admin): ");
+// //         NivelAcesso nivel;
+// //         while (!Enum.TryParse(Console.ReadLine(), true, out nivel))
+// //             Console.Write("Inválido. Digite Comum ou Admin: ");
 
-    private string LerSenha()
-    {
-        string senha = "";
+// //         Console.Write("Avatar: ");
+// //         string avatar = Console.ReadLine()!;
 
-        while (true)
-        {
-            ConsoleKeyInfo tecla = Console.ReadKey(intercept: true); // intercept: true = não mostra no console
+// //         var existente = _usuarioService.BuscarUsuarioPorUsername(username);
 
-            if (tecla.Key == ConsoleKey.Enter)
-            {
-                Console.WriteLine();
-                break;
-            }
-            else if (tecla.Key == ConsoleKey.Backspace)
-            {
-                if (senha.Length > 0)
-                {
-                    senha = senha[..^1];
-                    Console.Write("\b \b"); 
-                }
-            }
-            else
-            {
-                senha += tecla.KeyChar;
-                Console.Write("*"); 
-            }
-        }
+// //         if (existente != null)
+// //         {
+// //             Console.WriteLine("Usuário já existe!");
+// //             Console.ReadKey();
+// //             return;
+// //         }
 
-        return senha;
-    }
-    public void AlterarNivelAcesso()
-    {
-        Console.Clear();
-        Console.WriteLine("=== ALTERAR NÍVEL DE ACESSO ===");
+// //         var usuario = new Usuario
+// //         {
+// //             Username = username,
+// //             Senha = senha,
+// //             nivel = nivel,
+// //             Avatar = avatar
+// //         };
 
-        Console.Write("Id do usuário: ");
-        int id = Convert.ToInt32(Console.ReadLine());
+// //         _usuarioService.CadastrarUsuario(usuario);
 
-        Console.WriteLine("Nível de acesso:");
-        Console.WriteLine("0 - Comum");
-        Console.WriteLine("1 - Admin");
-        Console.Write("Escolha: ");
+// //         Console.WriteLine("Usuário cadastrado com sucesso!");
+// //         Console.ReadKey();
+// //     }
 
-        NivelAcesso nivel;
-        while (!Enum.TryParse(Console.ReadLine(), out nivel))
-            Console.Write("Opção inválida. Escolha 0 (Comum) ou 1 (Admin): ");
+// //     public Usuario? Login()
+// //     {
+// //         Console.Clear();
+// //         Console.WriteLine("=== LOGIN ===");
 
-        _usuarioService.AlterarNivelAcesso(id, nivel);
-        Console.WriteLine("Nível alterado com sucesso!");
-        Console.ReadKey();
-    }
+// //         Console.Write("Username: ");
+// //         string username = Console.ReadLine()!;
 
-    public void UploadAvatar(Usuario usuario)
-    {
-        Console.Clear();
-        Console.WriteLine("=== UPLOAD AVATAR ===");
+// //         Console.Write("Senha: ");
+// //         string senha = LerSenha();
 
-        Console.Write("Caminho da imagem: ");
-        string caminhoOrigem = Console.ReadLine()!;
+// //         var usuario = _usuarioService.Login(username, senha);
 
-        string? nomeAvatar = AvatarService.SalvarAvatar(usuario.Id, caminhoOrigem);
+// //         if (usuario == null)
+// //         {
+// //             Console.WriteLine("Login inválido!");
+// //             Console.ReadKey();
+// //             return null;
+// //         }
 
-        if (nomeAvatar != null)
-        {
-            _usuarioService.UploadAvatar(usuario.Id, nomeAvatar);
-            usuario.Avatar = nomeAvatar; // Atualiza o objeto em memória também
-            Console.WriteLine("Avatar atualizado com sucesso!");
-        }
+// //         Console.WriteLine($"Bem-vindo {usuario.Username}!");
+// //         Console.ReadKey();
+// //         return usuario;
+// //     }
 
-        Console.ReadKey();
-    }
+// //     private void ListarUsuarios()
+// //     {
+// //         Console.Clear();
+// //         Console.WriteLine("=== LISTA DE USUÁRIOS ===");
 
-    public void BuscarUsuario()
-    {
-        Console.Clear();
-        Console.WriteLine("=== BUSCA DE USUÁRIO ===");
+// //         var usuarios = _usuarioService.ListarUsuarios();
 
-        Console.Write("Username: ");
-        string username = Console.ReadLine()!;
+// //         foreach (var u in usuarios)
+// //         {
+// //             Console.WriteLine($"{u.Id} - {u.Username} - {u.nivel}");
+// //         }
 
-        var usuario = _usuarioService.BuscarUsuarioPorUsername(username);
+// //         Console.ReadKey();
+// //     }
 
-        if (usuario == null)
-        {
-            Console.WriteLine("Usuário não encontrado!");
-            Console.ReadKey();
-            return;
-        }
+// //     private void AtualizarUsuario(Usuario usuario)
+// //     {
+// //         Console.Clear();
+// //         Console.WriteLine("=== ATUALIZAR USUÁRIO ===");
 
-        Console.WriteLine("\n--- Dados do Usuário ---");
-        Console.WriteLine($"Id:       {usuario.Id}");
-        Console.WriteLine($"Username: {usuario.Username}");
-        Console.WriteLine($"Nível:    {usuario.nivel}");
-        Console.WriteLine($"Avatar:   {usuario.Avatar ?? "Sem avatar"}");
-        Console.WriteLine("------------------------");
-        Console.ReadKey();
-    }
-    public void DeletarUsuario()
-    {
-        Console.Clear();
-        Console.WriteLine("=== DELETAR USUÁRIO ===");
+// //         Console.Write("Novo username (enter para manter): ");
+// //         string username = Console.ReadLine()!;
 
-        Console.Write("Id do usuário: ");
-        int id = Convert.ToInt32(Console.ReadLine());
+// //         usuario.Username = string.IsNullOrWhiteSpace(username)
+// //             ? usuario.Username
+// //             : username;
 
-        _usuarioService.DeletarUsuario(id);
-        Console.WriteLine("Usuário deletado com sucesso!");
-        Console.ReadKey();
-    }
-    public void ExibirPerfil(Usuario usuario)
-{
-    Console.Clear();
-    Console.WriteLine("=== MEU PERFIL ===\n");
-    Console.WriteLine($"Id:       {usuario.Id}");
-    Console.WriteLine($"Username: {usuario.Username}");
-    Console.WriteLine($"Nível:    {usuario.nivel}");
-    Console.WriteLine($"Avatar:   {usuario.Avatar ?? "Sem avatar"}");
-    Console.ReadKey();
-    }
-}
+// //         _usuarioService.AtualizarUsuario(usuario);
+
+// //         Console.WriteLine("Atualizado com sucesso!");
+// //         Console.ReadKey();
+// //     }
+
+// //     public void BuscarUsuario()
+// //     {
+// //         Console.Clear();
+// //         Console.WriteLine("=== BUSCAR USUÁRIO ===");
+
+// //         Console.Write("Username: ");
+// //         string username = Console.ReadLine()!;
+
+// //         var usuario = _usuarioService.BuscarUsuarioPorUsername(username);
+
+// //         if (usuario == null)
+// //         {
+// //             Console.WriteLine("Não encontrado!");
+// //             Console.ReadKey();
+// //             return;
+// //         }
+
+// //         Console.WriteLine($"ID: {usuario.Id}");
+// //         Console.WriteLine($"Username: {usuario.Username}");
+// //         Console.WriteLine($"Nível: {usuario.nivel}");
+// //         Console.WriteLine($"Avatar: {usuario.Avatar}");
+
+// //         Console.ReadKey();
+// //     }
+
+// //     public void AlterarNivelAcesso()
+// //     {
+// //         Console.Clear();
+// //         Console.WriteLine("=== ALTERAR NÍVEL ===");
+
+// //         Console.Write("ID: ");
+// //         int id = int.Parse(Console.ReadLine()!);
+
+// //         Console.Write("Novo nível (0 Comum / 1 Admin): ");
+// //         NivelAcesso nivel = (NivelAcesso)int.Parse(Console.ReadLine()!);
+
+// //         _usuarioService.AlterarNivelAcesso(id, nivel);
+
+// //         Console.WriteLine("Alterado!");
+// //         Console.ReadKey();
+// //     }
+
+// //     public void UploadAvatar(Usuario usuario)
+// //     {
+// //         Console.Clear();
+// //         Console.WriteLine("=== UPLOAD AVATAR ===");
+
+// //         Console.Write("Caminho: ");
+// //         string caminho = Console.ReadLine()!;
+
+// //         string? nome = AvatarService.SalvarAvatar(usuario.Id, caminho);
+
+// //         if (nome != null)
+// //         {
+// //             _usuarioService.UploadAvatar(usuario.Id, nome);
+// //             usuario.Avatar = nome;
+// //         }
+
+// //         Console.WriteLine("Avatar atualizado!");
+// //         Console.ReadKey();
+// //     }
+
+// //     public void DeletarUsuario()
+// //     {
+// //         Console.Clear();
+// //         Console.WriteLine("=== DELETAR USUÁRIO ===");
+
+// //         Console.Write("ID: ");
+// //         int id = int.Parse(Console.ReadLine()!);
+
+// //         _usuarioService.DeletarUsuario(id);
+
+// //         Console.WriteLine("Deletado!");
+// //         Console.ReadKey();
+// //     }
+
+// //     public void ExibirPerfil(Usuario usuario)
+// //     {
+// //         Console.Clear();
+// //         Console.WriteLine("=== PERFIL ===");
+
+// //         Console.WriteLine($"ID: {usuario.Id}");
+// //         Console.WriteLine($"Username: {usuario.Username}");
+// //         Console.WriteLine($"Nível: {usuario.nivel}");
+// //         Console.WriteLine($"Avatar: {usuario.Avatar}");
+
+// //         Console.ReadKey();
+// //     }
+
+// //     private void AcessoNegado()
+// //     {
+// //         Console.WriteLine("Acesso negado!");
+// //         Console.ReadKey();
+// //     }
+
+// //     private string LerSenha()
+// //     {
+// //         string senha = "";
+
+// //         while (true)
+// //         {
+// //             var tecla = Console.ReadKey(true);
+
+// //             if (tecla.Key == ConsoleKey.Enter)
+// //             {
+// //                 Console.WriteLine();
+// //                 break;
+// //             }
+// //             else if (tecla.Key == ConsoleKey.Backspace && senha.Length > 0)
+// //             {
+// //                 senha = senha[..^1];
+// //                 Console.Write("\b \b");
+// //             }
+// //             else
+// //             {
+// //                 senha += tecla.KeyChar;
+// //                 Console.Write("*");
+// //             }
+// //         }
+
+// //         return senha;
+// //     }
+// }

@@ -134,7 +134,7 @@ private void Cadastrar()
 
         foreach (var vendedor in vendedores)
         {
-            Console.WriteLine($"Id:        {vendedor.Id}");
+            Console.WriteLine($"Id:        {vendedor.IdVend}");
             Console.WriteLine($"Nome:      {vendedor.Nome}");
             Console.WriteLine($"Matrícula: {vendedor.Matricula}");
             Console.WriteLine($"Salário:   R$ {vendedor.Salario:F2}");
@@ -162,17 +162,39 @@ private void Cadastrar()
         string matricula = Console.ReadLine()!;
 
         Console.Write("Novo Salário: ");
-        double salario = Convert.ToDouble(Console.ReadLine());
+        string salarioInput = Console.ReadLine()!;
 
-        _vendedorService.AtualizarVendedor(new Vendedor
+        double salario = 0;
+
+        // Permitir deixar vazio
+        if (!string.IsNullOrWhiteSpace(salarioInput))
         {
-            IdVend    = id,
-            Nome      = nome,
-            Matricula = matricula,
-            Salario   = salario
-        });
+            if (!double.TryParse(salarioInput, out salario))
+            {
+                Console.WriteLine("\nSalário inválido.");
+                Console.ReadKey();
+                return;
+            }
+        }
 
-        Console.WriteLine("\nVendedor atualizado com sucesso!");
+        try
+        {
+            _vendedorService.AtualizarVendedor(new Vendedor
+            {
+                IdVend = id,
+                Nome = nome,
+                Matricula = matricula,
+                Salario = salario
+            });
+
+            Console.WriteLine(
+                "\nVendedor atualizado com sucesso!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"\nErro: {ex.Message}");
+        }
+
         Console.ReadKey();
     }
 
