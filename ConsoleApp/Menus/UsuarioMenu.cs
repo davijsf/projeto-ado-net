@@ -34,7 +34,7 @@ public class UsuarioMenu
         Console.WriteLine("5. Buscar usuário");
         Console.WriteLine("6. Upload avatar");
         Console.WriteLine("7. Logout");
-        Console.WriteLine("0. Sair");
+        Console.WriteLine("0. Voltar");
 
         Console.Write("\nDigite: ");
         string opcao = Console.ReadLine() ?? "";
@@ -75,8 +75,7 @@ public class UsuarioMenu
                 return false;
 
             case "0":
-                Environment.Exit(0);
-                break;
+                return false;
         }
 
         return true;
