@@ -2,6 +2,7 @@ namespace Data.Repositories;
 
 using Entities;
 using System.Data;
+using System.Data.Common;
 using BCryptNet = BCrypt.Net.BCrypt; 
 
 
@@ -96,6 +97,35 @@ public class UsuarioRepository : RepositoryBase
 
         ExecuteNonQuery(sql, parametros);
     }
+
+    public void AtualizarUsuario(int usuarioId, string username)
+    {
+        const string sql = "UPDATE usuario SET username = @username WHERE id = @id";
+        var parametros = new Dictionary<string, object>
+        {
+            { "@id", usuarioId},
+            { "@username", username}  
+        };
+
+        ExecuteNonQuery(sql, parametros);
+    }
+
+    public List<Usuario> ListarUsuarios()
+    {
+        const string sql = "SELECT * FROM usuario";
+        DataTable dt = ExecuteTable(sql);
+
+        return dt.AsEnumerable()    
+        .Select(row => new Usuario
+        {
+            Id = row.Field<int>("id"),
+            Username = row.Field<string>("username"),
+            // Aqui ocorre a conversão de STRING --> ENUM
+            nivel = Enum.Parse<NivelAcesso>(row.Field<string>("nivel")!, ignoreCase: true)
+        })
+        .ToList();
+    }
+
     public void DeletarUsuario(int usuarioId)
     {
         const string sql = "DELETE FROM usuario WHERE id = @id";

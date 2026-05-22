@@ -34,6 +34,16 @@ public class UsuarioService : IUsuarioService
         _repository.AlterarNivelAcesso(usuarioId, nivel);
     }
 
+    public List<Usuario> ListarUsuarios()
+    {
+        return _repository.ListarUsuarios();
+    }
+
+    public void AtualizarUsuario(int id, string username)
+    {
+        _repository.AtualizarUsuario(id, username);
+    }
+
     public void UploadAvatar(int usuarioId, string caminho_imagem)
     {
         _repository.UploadAvatar(usuarioId, caminho_imagem);

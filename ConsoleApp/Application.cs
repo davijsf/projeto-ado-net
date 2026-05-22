@@ -75,7 +75,7 @@ class Application
                     case "3": vendedorMenu.ExibirMenu(); break;
                     case "4": autorMenu.ExibirMenu(); break;
                     case "5": vendaMenu.ExibirMenu(usuarioLogado); break;
-                    case "6": usuarioMenu.ExibirMenu(); break;
+                    case "6": usuarioMenu.ExibirMenu(usuarioLogado); break;
                     case "0": sair = true; break;
                     default:
                         Console.WriteLine("Opção inválida!");
