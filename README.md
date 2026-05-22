@@ -157,6 +157,8 @@ As entidades `Carrinho` e `ItemCarrinho` existem apenas em memória e nunca são
 | `Livro` | Livro disponível na livraria |
 | `Venda` | Registro de compra (data + valor total) |
 | `ItemVenda` | Item individual de uma venda (livro + quantidade + subtotal) |
+| `Carrinho` | Carrinho em memória durante uma compra |
+| `ItemCarrinho` | Item temporário no carrinho antes de confirmar a compra |
 
 ---
 
