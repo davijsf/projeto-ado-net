@@ -5,6 +5,17 @@ ALTER TABLE venda MODIFY COLUMN id_vendedor INT NULL;
 
 
 -- ===========================
+-- TABELA USUARIO
+-- ===========================
+CREATE TABLE usuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    nivel VARCHAR(20) NOT NULL, -- admin ou comum
+    avatar VARCHAR(255)
+);
+
+-- ===========================
 -- TABELA CLIENTE
 -- ===========================
 CREATE TABLE cliente (
@@ -100,13 +111,3 @@ CREATE TABLE itemvenda (
         ON UPDATE CASCADE
 );
 
--- ===========================
--- TABELA USUARIO
--- ===========================
-CREATE TABLE usuario (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    senha VARCHAR(255) NOT NULL,
-    nivel VARCHAR(20) NOT NULL, -- admin ou comum
-    avatar VARCHAR(255)
-);

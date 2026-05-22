@@ -103,17 +103,22 @@ public class UsuarioMenu
         return usuario;
     }
 
-    private void AtualizarUsuario(Usuario usuario)
+    private void AtualizarUsuario(Usuario usuarioLogado)
     {
         Console.Clear();
+
+        Console.Write("ID do usuário a atualizar: ");
+        int idAlvo = int.Parse(Console.ReadLine()!);
 
         Console.Write("Novo username: ");
         string novoUsername = Console.ReadLine() ?? "";
 
         if (!string.IsNullOrWhiteSpace(novoUsername))
         {
-            usuario.Username = novoUsername;
-            _usuarioService.AtualizarUsuario(usuario.Id, novoUsername);
+            _usuarioService.AtualizarUsuario(idAlvo, novoUsername);
+
+            if (idAlvo == usuarioLogado.Id)
+                usuarioLogado.Username = novoUsername;
         }
 
         Console.WriteLine("Atualizado!");
