@@ -159,7 +159,7 @@ public class UsuarioMenu
         Console.ReadKey();
     }
 
-    private void UploadAvatar(Usuario usuario)
+    public void UploadAvatar(Usuario usuario)
     {
         Console.Clear();
 

@@ -88,6 +88,7 @@ class Application
                 Console.WriteLine($"=== LIVRARIA [COMUM] - {usuarioLogado.Username} ===");
                 Console.WriteLine("1. Vendas");
                 Console.WriteLine("2. Meu Perfil");
+                Console.WriteLine("3. Atualizar Perfil");
                 Console.WriteLine("0. Sair");
                 Console.Write("\nEscolha uma opção: ");
 
@@ -95,6 +96,7 @@ class Application
                 {
                     case "1": vendaMenu.ExibirMenu(usuarioLogado); break;
                     case "2": usuarioMenu.ExibirPerfil(usuarioLogado); break;
+                    case "3": usuarioMenu.UploadAvatar(usuarioLogado); break;
                     case "0": sair = true; break;
                     default:
                         Console.WriteLine("Opção inválida!");
