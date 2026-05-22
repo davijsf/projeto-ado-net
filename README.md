@@ -135,10 +135,12 @@ O controle de nível de acesso é feito no momento do login, no `Application.cs`
 
 O carrinho funciona em memória durante a sessão de compra. O fluxo é:
 
+```
 Nova Venda
-→ Adicionar livros ao carrinho (busca por nome)
-→ Sistema verifica estoque disponível
-→ Confirmar compra → salva Venda + ItenVenda no banco
+  → Adicionar livros ao carrinho (busca por nome)
+  → Sistema verifica estoque disponível
+  → Confirmar compra → salva Venda + ItenVenda no banco
+```
 
 As entidades `Carrinho` e `ItemCarrinho` existem apenas em memória e nunca são persistidas no banco.
 
