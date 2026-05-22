@@ -1,6 +1,6 @@
 namespace Entities;
 
-public class Cliente : Usuario
+public class Cliente
 {
     public int IdClient { get ; set ; }
     public string ? Nome { get ; set ; }

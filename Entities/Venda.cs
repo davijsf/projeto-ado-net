@@ -12,7 +12,7 @@ public class Venda
     public Cliente ? Cliente { get ; set ;}
 
     // chave estrangeira
-    public int IdVendedor { get ; set ;}
+    public int? IdVendedor { get ; set ;}
      // prop. de nav
     public Vendedor ? Vendedor { get ; set ;}
 }

@@ -1,6 +1,9 @@
 CREATE DATABASE livraria_ado_net;
 USE livraria_ado_net;
 
+ALTER TABLE venda MODIFY COLUMN id_vendedor INT NULL;
+
+
 -- ===========================
 -- TABELA CLIENTE
 -- ===========================

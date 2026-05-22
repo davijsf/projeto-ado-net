@@ -23,88 +23,92 @@ class Application
         VendedorMenu vendedorMenu = new VendedorMenu(vendedorService, usuarioService);
         ClienteMenu clienteMenu = new ClienteMenu(clienteService, usuarioService);
 
-        // Login antes de acessar o sistema
-        Usuario? usuarioLogado = null;
-
-        while (usuarioLogado == null)
+        while (true)
         {
-            Console.Clear();
-            Console.WriteLine("=== LIVRARIA ===");
-            Console.WriteLine("1. Login");
-            Console.WriteLine("0. Sair");
-            Console.Write("\nEscolha uma opção: ");
+            Usuario? usuarioLogado = null;
+            bool sair = false;
 
-            string opcao = Console.ReadLine()!;
-
-            switch (opcao)
+            while (usuarioLogado == null)
             {
-                case "1":
-                    usuarioLogado = usuarioMenu.Login();
-                    break;
-                case "0":
-                    return;
-                default:
-                    Console.WriteLine("Opção inválida!");
-                    Console.ReadKey();
-                    break;
-            }
-        }
-
-        // Menu principal baseado no nível de acesso
-        bool sair = false;
-        while (!sair)
-        {
-            Console.Clear();
-
-            if (usuarioLogado.nivel == NivelAcesso.Admin)
-            {
-                Console.WriteLine($"=== LIVRARIA [ADMIN] - {usuarioLogado.Username} ===");
-                Console.WriteLine("1. Livros");
-                Console.WriteLine("2. Clientes");
-                Console.WriteLine("3. Vendedores");
-                Console.WriteLine("4. Autores");
-                Console.WriteLine("5. Vendas");
-                Console.WriteLine("6. Usuários");
+                Console.Clear();
+                Console.WriteLine("=== LIVRARIA ===");
+                Console.WriteLine("1. Login");
                 Console.WriteLine("0. Sair");
                 Console.Write("\nEscolha uma opção: ");
 
-                switch (Console.ReadLine())
+                string opcao = Console.ReadLine()!;
+
+                switch (opcao)
                 {
-                    case "1": livroMenu.ExibirMenu(); break;
-                    case "2": clienteMenu.ExibirMenu(); break;
-                    case "3": vendedorMenu.ExibirMenu(); break;
-                    case "4": autorMenu.ExibirMenu(); break;
-                    case "5": vendaMenu.ExibirMenu(usuarioLogado); break;
-                    case "6": usuarioMenu.ExibirMenu(usuarioLogado); break;
-                    case "0": sair = true; break;
+                    case "1":
+                        usuarioLogado = usuarioMenu.Login();
+                        break;
+                    case "0":
+                        return;
                     default:
                         Console.WriteLine("Opção inválida!");
                         Console.ReadKey();
                         break;
                 }
             }
-            else
-            {
-                Console.WriteLine($"=== LIVRARIA [COMUM] - {usuarioLogado.Username} ===");
-                Console.WriteLine("1. Vendas");
-                Console.WriteLine("2. Meu Perfil");
-                Console.WriteLine("3. Atualizar Perfil");
-                Console.WriteLine("0. Sair");
-                Console.Write("\nEscolha uma opção: ");
 
-                switch (Console.ReadLine())
+            while (!sair)
+            {
+                Console.Clear();
+
+                if (usuarioLogado.nivel == NivelAcesso.Admin)
                 {
-                    case "1": vendaMenu.ExibirMenu(usuarioLogado); break;
-                    case "2": usuarioMenu.ExibirPerfil(usuarioLogado); break;
-                    case "3": usuarioMenu.UploadAvatar(usuarioLogado); break;
-                    case "0": sair = true; break;
-                    default:
-                        Console.WriteLine("Opção inválida!");
-                        Console.ReadKey();
-                        break;
+                    Console.WriteLine($"=== LIVRARIA [ADMIN] - {usuarioLogado.Username} ===");
+                    Console.WriteLine("1. Livros");
+                    Console.WriteLine("2. Clientes");
+                    Console.WriteLine("3. Vendedores");
+                    Console.WriteLine("4. Autores");
+                    Console.WriteLine("5. Vendas");
+                    Console.WriteLine("6. Usuários");
+                    Console.WriteLine("0. Sair");
+                    Console.Write("\nEscolha uma opção: ");
+
+                    switch (Console.ReadLine())
+                    {
+                        case "1": livroMenu.ExibirMenu(); break;
+                        case "2": clienteMenu.ExibirMenu(); break;
+                        case "3": vendedorMenu.ExibirMenu(); break;
+                        case "4": autorMenu.ExibirMenu(); break;
+                        case "5": vendaMenu.ExibirMenu(usuarioLogado); break;
+                        case "6": usuarioMenu.ExibirMenu(usuarioLogado); break;
+                        case "0":
+                            sair = true;
+                            break;
+                        default:
+                            Console.WriteLine("Opção inválida!");
+                            Console.ReadKey();
+                            break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"=== LIVRARIA [COMUM] - {usuarioLogado.Username} ===");
+                    Console.WriteLine("1. Vendas");
+                    Console.WriteLine("2. Meu Perfil");
+                    Console.WriteLine("3. Atualizar Perfil");
+                    Console.WriteLine("0. Sair");
+                    Console.Write("\nEscolha uma opção: ");
+
+                    switch (Console.ReadLine())
+                    {
+                        case "1": vendaMenu.ExibirMenu(usuarioLogado); break;
+                        case "2": usuarioMenu.ExibirPerfil(usuarioLogado); break;
+                        case "3": usuarioMenu.UploadAvatar(usuarioLogado); break;
+                        case "0":
+                            sair = true;
+                            break;
+                        default:
+                            Console.WriteLine("Opção inválida!");
+                            Console.ReadKey();
+                            break;
+                    }
                 }
             }
         }
     }
 }
-

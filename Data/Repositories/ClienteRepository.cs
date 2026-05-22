@@ -8,12 +8,13 @@ public class ClienteRepository : RepositoryBase
 {
     public void CadastrarCliente(Cliente cliente)
     {
-        const string sql = "INSERT INTO cliente (nome, cpf, email) VALUES (@nome, @cpf, @email)";
+        const string sql = "INSERT INTO cliente (nome, cpf, email, id_usuario) VALUES (@nome, @cpf, @email, @id_usuario)";
         var parametros = new Dictionary<string, object>
         {
             { "@nome", cliente.Nome! },
             { "@cpf", cliente.Cpf! },
-            { "@email", cliente.Email! }
+            { "@email", cliente.Email! },
+            { "@id_usuario", cliente.IdUsuario!}
         };
 
         ExecuteNonQuery(sql, parametros);
@@ -72,7 +73,7 @@ public class ClienteRepository : RepositoryBase
         DataRow row = dt.Rows[0];
         return new Cliente
         {
-            Id = row.Field<int>("id")
+            IdClient = row.Field<int>("id")
         };
     }
     public void AtualizarCliente(Cliente cliente)

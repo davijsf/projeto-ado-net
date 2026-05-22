@@ -14,7 +14,7 @@ public class VendaRepository : RepositoryBase
             { "@data", venda.DataVenda },
             { "@total", venda.Total },
             { "@id_cliente", venda.IdCliente },
-            { "@id_vendedor", venda.IdVendedor }
+            { "@id_vendedor", (object?)venda.IdVendedor ?? DBNull.Value}
         };
 
         object? result = ExecuteScalar(sql, parametros);
@@ -95,7 +95,7 @@ public class VendaRepository : RepositoryBase
                    c.nome AS cliente_nome, ven.nome AS vendedor_nome
             FROM venda v
             JOIN cliente c ON v.id_cliente = c.id
-            JOIN vendedor ven ON v.id_vendedor = ven.id
+            LEFT JOIN vendedor ven ON v.id_vendedor = ven.id
             WHERE v.id_cliente = @clienteId";
 
         DataTable dt = ExecuteTable(sql, new Dictionary<string, object> { { "@clienteId", clienteId } });
@@ -106,9 +106,9 @@ public class VendaRepository : RepositoryBase
                 DataVenda = Convert.ToDateTime(row["data"]),
                 Total = Convert.ToDouble(row["total"]),
                 IdCliente = Convert.ToInt32(row["id_cliente"]),
-                IdVendedor = Convert.ToInt32(row["id_vendedor"]),
                 Cliente = new Cliente { Nome = row["cliente_nome"].ToString() },
-                Vendedor = new Vendedor { Nome = row["vendedor_nome"].ToString() }
+                IdVendedor = row["id_vendedor"] == DBNull.Value ? null : Convert.ToInt32(row["id_vendedor"]),
+                Vendedor   = row["vendedor_nome"] == DBNull.Value ? null : new Vendedor { Nome = row["vendedor_nome"].ToString() }
             })
             .ToList();
     }

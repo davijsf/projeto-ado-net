@@ -11,9 +11,9 @@ public class VendaMenu
 
     public VendaMenu(LivroService livroService, VendaService vendaService, ClienteService clienteService)
     {
-        _livroService = new LivroService();
-        _vendaService = new VendaService();
-        _clienteService = new ClienteService();
+        _livroService = livroService;
+        _vendaService = vendaService;
+        _clienteService = clienteService;
     }
 
     public void ExibirMenu(Usuario usuarioLogado)
@@ -24,10 +24,14 @@ public class VendaMenu
             Console.Clear();
             Console.WriteLine("=== Menu de Vendas ===");
             Console.WriteLine("1. Nova Venda");
-            Console.WriteLine("2. Listar Vendas");
+            Console.WriteLine("2. Listar Compras");
 
             if (usuarioLogado.nivel == NivelAcesso.Admin)
+            {
                 Console.WriteLine("3. Consultar Vendas por Cliente");
+                Console.WriteLine("4. Listar Vendas");
+            }
+
             Console.WriteLine("0. Voltar");
             Console.Write("\nEscolha uma opção: ");
             string escolha = Console.ReadLine() ?? "";
@@ -35,10 +39,19 @@ public class VendaMenu
             switch (escolha)
             {
                 case "1": NovaVenda(usuarioLogado); break;
-                case "2": ListarVendas(); break;
+                case "2": ConsultarComprasCliente(usuarioLogado); break;
                 case "3": 
                     if (usuarioLogado.nivel == NivelAcesso.Admin)
-                        ConsultarVendasPorCliente(); 
+                        ConsultarComprasCliente(usuarioLogado);
+                    else
+                    {
+                        Console.WriteLine("Acesso negado!");
+                        Console.ReadKey();
+                    }
+                    break;
+                case "4": 
+                    if (usuarioLogado.nivel == NivelAcesso.Admin)
+                        ListarVendas();
                     else
                     {
                         Console.WriteLine("Acesso negado!");
@@ -60,7 +73,7 @@ public class VendaMenu
         Console.WriteLine("=== Nova Venda ===");   
 
         int idCliente;
-        int idVendedor;
+        int? idVendedor;
 
         if (usuarioLogado.nivel == NivelAcesso.Admin)
         {
@@ -83,7 +96,7 @@ public class VendaMenu
             }
 
             idCliente  = cliente.IdClient;
-            idVendedor = 0; // sem vendedor para compra online
+            idVendedor = null; // sem vendedor para compra online
             Console.WriteLine($"Cliente: {cliente.Nome}");
         }
 
@@ -153,6 +166,27 @@ public class VendaMenu
     {
         Console.Clear();
         Console.WriteLine("=== Adicionar livro ===\n");
+            // Busca e exibe a lista
+        var livros = _livroService.ListarLivros();
+
+        if (livros.Count == 0)
+        {
+            Console.WriteLine("Nenhum livro disponível.");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.WriteLine($"{"#",-4} {"Título",-40} {"Preço",-10} {"Estoque"}");
+        Console.WriteLine(new string('-', 65));
+
+        for (int i = 0; i < livros.Count; i++)
+        {
+            var l = livros[i];
+            Console.WriteLine($"{i + 1,-4} {l.Titulo,-40} R$ {l.Preco,-8:F2} {l.Estoque}");
+        }
+
+        Console.WriteLine(new string('-', 65));
+
 
         Console.Write("Nome do Livro: ");
         string nomeLivro = Console.ReadLine()!;
@@ -301,26 +335,31 @@ public class VendaMenu
         Console.ReadKey();
     }
 
-    private void ConsultarVendasPorCliente()
+    private void ConsultarComprasCliente(Usuario usuario)
     {
         Console.Clear();
-        Console.WriteLine("=== VENDAS POR CLIENTE ===\n");
+        Console.WriteLine("=== LISTA DE COMPRAS ===\n");
 
-        Console.Write("Id do Cliente: ");
-        int clienteId = int.Parse(Console.ReadLine()!);
+        var cliente = _clienteService.BuscarPorIdUsuario(usuario.Id);
 
-        List<Venda> vendas = _vendaService.ConsultarVendasPorCliente(clienteId);
+        if (cliente == null)
+        {
+            Console.WriteLine("Usuário não está cadastrado como cliente.");
+            Console.ReadKey();
+            return;
+        }
+
+        List<Venda> vendas = _vendaService.ConsultarVendasPorCliente(cliente.IdClient);
 
         if (vendas.Count == 0)
         {
-            Console.WriteLine("Nenhuma venda encontrada para esse cliente.");
+            Console.WriteLine("Nenhuma venda encontrada.");
             Console.ReadKey();
             return;
         }
 
         foreach (var venda in vendas)
         {
-            Console.WriteLine($"Id: {venda.Id}");
             Console.WriteLine($"Data: {venda.DataVenda:dd/MM/yyyy HH:mm}");
             Console.WriteLine($"Total: R$ {venda.Total:F2}");
             Console.WriteLine(new string('-', 40));
