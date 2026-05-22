@@ -17,7 +17,7 @@ public class UsuarioMenu
         bool loop = true;
         while (loop)
         {
-            if (usuarioLogado == null) 
+            if (usuarioLogado != null) 
                 loop = MenuPrivado(usuarioLogado!);
         }
     }
