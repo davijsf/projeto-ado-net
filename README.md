@@ -12,8 +12,12 @@ ADO-Net-Solution.slnx
 ├── ConsoleApp/               # Ponto de entrada e menus interativos
 │   ├── Application.cs
 │   └── Menus/
+│       ├── AutorMenu.cs
+│       ├── ClienteMenu.cs
 │       ├── LivroMenu.cs
-│       └── UsuarioMenu.cs
+│       ├── UsuarioMenu.cs
+│       ├── VendaMenu.cs
+│       └── VendedorMenu.cs
 │
 ├── Business/
 │   ├── Interfaces/           # Contratos de serviço (IUsuarioService, ILivroService...)
@@ -109,20 +113,34 @@ UsuarioMenu.Login()
 
 ---
 
-## 👤 Funcionalidades por Nível de Acesso
+## 👤 Controle de Acesso
 
-### 🔐 Login
-Autenticação por `username` e senha. A senha é armazenada com hash BCrypt e verificada no momento do login.
+O controle de nível de acesso é feito no momento do login, no `Application.cs`. Após autenticação, o menu exibido varia conforme o nível do usuário logado:
 
-### 🛡️ Admin
-- Cadastrar usuários (clientes e vendedores)
-- Alterar nível de acesso de usuários
+### 🛡️ Admin — acesso completo
+- Gerenciar Livros (cadastrar, listar, atualizar, remover)
+- Gerenciar Clientes (cadastrar, listar, atualizar, remover)
+- Gerenciar Vendedores (cadastrar, listar, atualizar, remover)
+- Gerenciar Autores (cadastrar, listar, atualizar, remover)
+- Registrar e consultar Vendas
+- Gerenciar Usuários (cadastrar, alterar nível de acesso, deletar)
 
-### 👤 Comum
-- Atualizar avatar (nome do arquivo de imagem salvo no banco)
-- Adicionar e remover livros do carrinho
-- Registrar compra (gera uma `Venda` com data e valor total)
-- Listar compras realizadas
+### 👤 Comum — acesso restrito
+- Realizar compras (carrinho de compras)
+- Visualizar o próprio perfil
+
+---
+
+## 🛒 Carrinho de Compras
+
+O carrinho funciona em memória durante a sessão de compra. O fluxo é:
+
+Nova Venda
+→ Adicionar livros ao carrinho (busca por nome)
+→ Sistema verifica estoque disponível
+→ Confirmar compra → salva Venda + ItenVenda no banco
+
+As entidades `Carrinho` e `ItemCarrinho` existem apenas em memória e nunca são persistidas no banco.
 
 ---
 
