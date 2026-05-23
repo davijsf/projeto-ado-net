@@ -190,15 +190,7 @@ Edite com suas credenciais locais:
 - MySQL rodando localmente
 - [dotnet-script](https://github.com/dotnet-script/dotnet-script) (para o seed)
 
-### 1. Criar o banco de dados
-
-Execute o script SQL no seu cliente MySQL:
-
-```bash
-mysql -u root -p < Data/script_livraria_ado_net.sql
-```
-
-### 2. Popular o banco (seed)
+### 1. Popular o banco (seed)
 
 ```bash
 cd Data/Seeds
@@ -206,7 +198,7 @@ cd Data/Seeds
 dotnet script seed_livraria.csx
 ```
 
-### 3. Rodar a aplicação
+### 2. Rodar a aplicação
 
 ```bash
 dotnet run --project ConsoleApp
@@ -230,3 +222,4 @@ dotnet run --project ConsoleApp
 
 - [`docs/Diagrama_livraria.pdf`](docs/Diagrama_livraria.pdf) — Diagrama do banco de dados
 - [`docs/funcionalidades.md`](docs/funcionalidades.md) — Descrição detalhada das funcionalidades
+- [`docs/relatorio_uso_ia.pdf`](docs/Diagrama_livraria.pdf) — Relatório de uso de IA
