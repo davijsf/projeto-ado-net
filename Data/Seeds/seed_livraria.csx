@@ -2,23 +2,32 @@
 // seed_livraria.csx
 #r "nuget: MySqlConnector, 2.3.7"
 #r "nuget: BCrypt.net-Next, 4.0.3"
+#r "nuget: Microsoft.Extensions.Configuration, 8.0.0"
+#r "nuget: Microsoft.Extensions.Configuration.Json, 8.0.0"
 
-using MySqlConnector;
-using BCrypt.Net;
 using System;
+using System.IO;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-
-// Entre no dir \Seeds e rode:
-// Código para rodar: dotnet script .\seed_livraria.csx
+using System.Linq;
+using MySqlConnector;
+using Microsoft.Extensions.Configuration;
 
 await Main();
 
 async Task Main()
 {
-    var connectionString = "server=localhost;database=livraria_ado_net;uid=root;pwd=1234";
 
-    await using var conn = new MySqlConnection(connectionString);
+    // Utilizando appsettings.json para entrar no Banco
+    IConfiguration config = new ConfigurationBuilder()
+        .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "ConsoleApp"))
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+        .Build();
+
+    string stConnection = config.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found in appsettings.json");
+
+    await CriarSchema(stConnection);
+    await using var conn = new MySqlConnection(stConnection);
     await conn.OpenAsync();
     Console.WriteLine("Conexão feita com sucesso!");
 
@@ -30,6 +39,41 @@ async Task Main()
     await InserirVendas(conn);
 
     Console.WriteLine("\nBanco populado com sucesso!");
+
+    // criação do Schema do BD
+    async Task CriarSchema(string connectionString)
+    {
+        Console.WriteLine("Criando banco de dados e tabelas...");
+        string schemaPath = Path.Combine(Directory.GetCurrentDirectory(), "..", 
+        "script_livraria_ado_net.sql");
+
+        if (!File.Exists(schemaPath)) 
+            throw new FileNotFoundException($"Arquivo script_livraria_ado_net.sql não encontrado em: {schemaPath}");
+
+        string sql = await File.ReadAllTextAsync(schemaPath);
+
+        var linhas = sql.Split('\n')
+            .Where(l => !l.TrimStart().StartsWith("--"))
+            .ToArray();
+        sql = string.Join('\n', linhas);
+
+        var builderSemBanco = new MySqlConnectionStringBuilder(connectionString);
+        builderSemBanco.Database = "";
+
+        await using var conn = new MySqlConnection(builderSemBanco.ConnectionString);
+        await conn.OpenAsync();
+
+        foreach (var bloco in sql.Split(';', StringSplitOptions.RemoveEmptyEntries))
+        {
+            string comando = bloco.Trim();
+            if (string.IsNullOrWhiteSpace(comando)) continue;
+
+            await using var cmd = new MySqlCommand(comando, conn);
+            await cmd.ExecuteNonQueryAsync();
+
+            Console.WriteLine("Schema criado com sucesso!\n");
+        }
+    };
 
     async Task InserirUsuarios(MySqlConnection c)
     {
