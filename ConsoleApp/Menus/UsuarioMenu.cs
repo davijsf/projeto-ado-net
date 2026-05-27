@@ -33,7 +33,8 @@ public class UsuarioMenu
         Console.WriteLine("4. Deletar usuário (Admin)");
         Console.WriteLine("5. Buscar usuário");
         Console.WriteLine("6. Upload avatar");
-        Console.WriteLine("7. Logout");
+        Console.WriteLine("7. Listar usuários");
+        Console.WriteLine("8. Logout");
         Console.WriteLine("0. Voltar");
 
         Console.Write("\nDigite: ");
@@ -72,6 +73,11 @@ public class UsuarioMenu
                 break;
 
             case "7":
+                if (usuario.nivel == NivelAcesso.Admin)
+                    ListarUsuarios();
+                break;
+
+            case "8":
                 return false;
 
             case "0":
@@ -103,12 +109,36 @@ public class UsuarioMenu
         return usuario;
     }
 
+    private void ListarUsuarios()
+    {
+        var users = _usuarioService.ListarUsuarios();
+
+        if (users.Count == 0)
+        {
+            Console.WriteLine("Nenhum usuário encontrado.");
+            return;
+        }
+        foreach(Usuario u in users)
+        {  
+
+            Console.WriteLine($"ID: {u.Id}");
+            Console.WriteLine($"Username: {u.Username}");
+            Console.WriteLine($"Avatar: {u.Avatar}");
+            Console.WriteLine($"Nível: {u.nivel}");
+            Console.WriteLine("----------------------------");
+        } 
+
+        Console.ReadKey();
+    }
+
     private void AtualizarUsuario(Usuario usuarioLogado)
     {
         Console.Clear();
+        ListarUsuarios();
 
         Console.Write("ID do usuário a atualizar: ");
         int idAlvo = int.Parse(Console.ReadLine()!);
+        
 
         Console.Write("Novo username: ");
         string novoUsername = Console.ReadLine() ?? "";
@@ -150,6 +180,7 @@ public class UsuarioMenu
     private void AlterarNivelAcesso()
     {
         Console.Clear();
+        ListarUsuarios();
 
         Console.Write("ID: ");
         int id = int.Parse(Console.ReadLine()!);
@@ -186,6 +217,7 @@ public class UsuarioMenu
     {
         Console.Clear();
 
+        ListarUsuarios();
         Console.Write("ID: ");
         int id = int.Parse(Console.ReadLine()!);
 
