@@ -63,7 +63,7 @@ ADO-Net-Solution.slnx
 
 ## 🏗️ Arquitetura
 
-O projeto segue uma arquitetura em camadas inspirada no padrão **MVC**:
+O projeto segue uma **Arquitetura em Camadas** (Layered Architecture):
 
 - **Entities** — modelos de domínio puros, sem dependências externas
 - **Data** — repositórios responsáveis exclusivamente pelo acesso ao banco (ADO.NET)
